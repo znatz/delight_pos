@@ -1,0 +1,328 @@
+@import url('//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css');
+@import url(http://fonts.googleapis.com/earlyaccess/notosansjapanese.css);
+
+* {
+	padding: 0;
+	margin: 0;
+	border: 0;
+}
+
+/*	リセットスタイル　：　開始　*/
+html, body, div, span, applet, object, iframe, h1, h2, h3, h4, h5, h6, p,
+	blockquote, pre, a, abbr, acronym, address, big, cite, code, del, dfn,
+	em, img, ins, kbd, q, s, samp, small, strike, strong, sub, sup, tt, var,
+	b, u, i, center, dl, dt, dd, ol, ul, li, fieldset, form, label, legend,
+	table, caption, tbody, tfoot, thead, tr, th, td, article, aside, canvas,
+	details, embed, figure, figcaption, footer, header, hgroup, menu, nav,
+	output, ruby, section, summary, time, mark, audio, video {
+	margin: 0;
+	padding: 0;
+	border: 0;
+	font-size: 100%;
+	font: inherit;
+	vertical-align: baseline;
+}
+
+article, aside, details, figcaption, figure, footer, header, hgroup,
+	menu, nav, section {
+	display: block;
+}
+
+body {
+	line-height: 1;
+}
+
+ol, ul {
+	list-style: none;
+}
+
+blockquote, q {
+	quotes: none;
+}
+
+blockquote:before, blockquote:after, q:before, q:after {
+	content: '';
+	content: none;
+}
+
+table {
+	border-collapse: collapse;
+	border-spacing: 0;
+}
+/*	リセットスタイル　：　終了　*/
+
+/* 警告メッセージ ：　開始　*/
+
+
+.isa_info, .isa_success, .isa_warning, .isa_error {
+margin: 0;
+/*padding:12px;*/
+}
+.isa_info {
+    color: #00529B;
+    background-color: #BDE5F8;
+}
+.isa_success {
+    color: #4F8A10;
+    background-color: #DFF2BF;
+}
+.isa_warning {
+    color: #9F6000;
+    background-color: #FEEFB3;
+}
+.isa_error {
+    color: #D8000C;
+    background-color: #FFBABA;
+}
+.isa_info i, .isa_success i, .isa_warning i, .isa_error i {
+    margin:10px 22px;
+    font-size:2em;
+    vertical-align:middle;
+}
+
+/* 警告メッセージ　：　終了 */
+
+
+* {
+	padding: 0;
+	margin: 0;
+	border: 0;
+	/*letter-spacing:0.8pt*/
+}
+
+.blended_grid {
+	display: block;
+	width: 1150px;
+	overflow: auto;
+	margin: 5px auto 0 auto;
+    border: 5px solid white;
+    border-left: 1px solid #BFBFBF;
+    position: relative;
+	box-shadow: 4px 2px 7px rgba(0, 0, 0, 0.80);
+	-moz-box-shadow: 4px 2px 7px rgba(0, 0, 0, 0.80);
+	-webkit-box-shadow: 4px 2px 7px rgba(0, 0, 0, 0.80);
+	border-radius: 10px;
+}
+
+.pageHeader {
+	float: left;
+	clear: none;
+	height: 80px;
+	width: 1150px;
+	font-family: Verdana;
+	font-size: 12px;
+    overflow-x: hidden;
+    overflow-y: hidden;
+    background:#ffffff;
+}
+
+.pageContent {
+	float: left;
+	clear: none;
+	height: 1000px;
+	width: 1150px;
+	overflow-x: hidden;
+	/*box-shadow: 5px 5px 0px #BFBFBF;*/
+	border-radius: 10px;
+	background:#ffffff;
+    margin:0 10px;
+}
+
+.pageFooter {
+	float: left;
+	clear: none;
+	height: 30px;
+	width: 1150px;
+	overflow: hidden;
+	background: #ffffff;
+	border: 1px solid #31637d;
+	background: #ffffff;
+	text-align: center;
+	margin:0 auto;
+	/* Old browsers */
+	background: -moz-linear-gradient(top, #ffffff 0%, #31637d 100%);
+	/* FF3.6+ */
+	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #ffffff), color-stop(100%, #31637d));
+	/* Chrome,Safari4+ */
+	background: -webkit-linear-gradient(top, #ffffff 0%, #31637d 100%);
+	/* Chrome10+,Safari5.1+ */
+	background: -o-linear-gradient(top, #ffffff 0%, #31637d 100%);
+	/* Opera 11.10+ */
+	background: -ms-linear-gradient(top, #ffffff 0%, #31637d 100%);
+	/* IE10+ */
+	background: linear-gradient(to bottom, #ffffff 0%, #31637d 100%);
+	/* W3C */
+	filter: progid : DXImageTransform.Microsoft.gradient( startColorstr='#ffffff', endColorstr='#31637d', GradientType=0);
+	/* IE6-9 */
+}
+
+.pageFooter {
+	float: left;
+	clear: none;
+	height: 30px;
+	width: 1150px;
+	overflow: hidden;
+	background: #ffffff;
+	border: 1px solid #31637d;
+	background: #ffffff;
+	text-align: center;
+	margin: 0 auto;
+	/* Old browsers */
+	background: -moz-linear-gradient(top, #ffffff 0%, #31637d 100%);
+	/* FF3.6+ */
+	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #ffffff),
+		color-stop(100%, #31637d));
+	/* Chrome,Safari4+ */
+	background: -webkit-linear-gradient(top, #ffffff 0%, #31637d 100%);
+	/* Chrome10+,Safari5.1+ */
+	background: -o-linear-gradient(top, #ffffff 0%, #31637d 100%);
+	/* Opera 11.10+ */
+	background: -ms-linear-gradient(top, #ffffff 0%, #31637d 100%);
+	/* IE10+ */
+	background: linear-gradient(to bottom, #ffffff 0%, #31637d 100%);
+	/* W3C */
+	filter: progid: DXImageTransform.Microsoft.gradient( startColorstr='#ffffff',
+		endColorstr='#31637d', GradientType=0);
+	/* IE6-9 */
+}
+/* トップ右　*/
+div.top_left_info_up {
+	margin: 30px 10px 5px 10px;
+	float: top;
+	font-size: 12px;
+}
+
+div.top_left_info_down {
+	margin: 0px 0 10px 10px;
+	float: top;
+	font-size: 12px;
+}
+
+div.top_right_info_up {
+	float: left;
+	margin: 0 3px 5px 3px;
+	font-size: 12px;
+}
+
+div.top_right_info_down {
+	float: right;
+	margin: 0 3px 8px 3px;
+	font-size: 12px;
+}
+
+div.top_right_info_down a {
+    perspective: 600px;
+    perspective-origin: 50% 100%;
+    transition: color 0.3s;
+    margin:0 5px;
+}
+
+div.top_right_info_down a:hover {
+    color: #e74c3c;
+}
+
+div.top_right_info_down a:before {
+    background-color: #fff;
+    transition: transform 0.2s;
+    transition-timing-function: cubic-bezier(0.7,0,0.3,1);
+    transform: rotateX(90deg);
+    transform-origin: 50% 100%;
+}
+
+div.top_right_info_down a:before, div.top_right_info_down a:after {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: -4px;
+    z-index: -1;
+    box-sizing: content-box;
+    padding: 0 4px;
+    content: '';
+}
+/* メニュー */
+/* Bounce In */
+.hvr-bounce-in {
+  /*display: inline-block;*/
+  vertical-align: middle;
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
+  box-shadow: 0 0 1px rgba(0, 0, 0, 0);
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-transition-duration: 0.3s;
+  transition-duration: 0.3s;
+}
+.hvr-bounce-in:hover, .hvr-bounce-in:focus, .hvr-bounce-in:active {
+  -webkit-transform: scale(1.2);
+  transform: scale(1.2);
+  -webkit-transition-timing-function: cubic-bezier(0.47, 2.02, 0.31, -0.36);
+  transition-timing-function: cubic-bezier(0.47, 2.02, 0.31, -0.36);
+}
+/* End of Bounce In */
+
+/* Bounce To Bottom */
+.hvr-bounce-to-top {
+  display: inline-block;
+  vertical-align: middle;
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
+  box-shadow: 0 0 1px rgba(0, 0, 0, 0);
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+  -moz-osx-font-smoothing: grayscale;
+  position: relative;
+  -webkit-transition-property: color;
+  transition-property: color;
+  -webkit-transition-duration: 0.5s;
+  transition-duration: 0.5s;
+}
+.hvr-bounce-to-top:before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: #F49E95;
+  -webkit-transform: scaleY(0);
+  transform: scaleY(0);
+  -webkit-transform-origin: 50% 100%;
+  transform-origin: 50% 100%;
+  -webkit-transition-property: transform;
+  transition-property: transform;
+  -webkit-transition-duration: 0.5s;
+  transition-duration: 0.5s;
+  -webkit-transition-timing-function: ease-out;
+  transition-timing-function: ease-out;
+}
+.hvr-bounce-to-top:hover, .hvr-bounce-to-top:focus, .hvr-bounce-to-top:active {
+  color: white;
+}
+.hvr-bounce-to-top:hover:before, .hvr-bounce-to-top:focus:before, .hvr-bounce-to-top:active:before {
+  -webkit-transform: scaleY(1);
+  transform: scaleY(1);
+  -webkit-transition-timing-function: cubic-bezier(0.52, 1.64, 0.37, 0.66);
+  transition-timing-function: cubic-bezier(0.52, 1.64, 0.37, 0.66);
+}
+/* End of Bounce To Bottom */
+
+
+
+
+
+div ul li {
+	box-shadow: 0 2px 1px -1px;
+}
+
+ul {
+	margin-left: 0;
+	padding-left: 0;
+	list-style-type: none;
+}
+
+body {
+    font-family: "Noto Sans", "Noto Sans CJK JP", sans-serif;
+}

@@ -1,0 +1,100 @@
+table.search_table {
+    border-collapse: separate;
+    border-spacing: 0;
+}
+
+table.search_table td {
+    border: solid 1px #000;
+    border-style: none solid solid none;
+    font-family: Arial;
+    font-size: 14px;
+    line-height: 20px;
+    vertical-align: middle;
+    padding: 0 4px;
+}
+
+table.search_table tr:last-child td:first-child {
+    border-bottom-left-radius: 10px;
+}
+
+table.search_table tr:last-child td:last-child {
+    border-bottom-right-radius: 10px;
+}
+
+table.search_table tr:first-child td {
+    border-top-style: solid;
+}
+
+table.search_table tr td:first-child {
+    border-left-style: solid;
+}
+
+table.search_table th {
+    border: solid 1px #000;
+    height: 20px;
+}
+
+table.search_table thead th:first-child {
+    border-radius: 5px 0 0 0;
+}
+
+table.search_table thead th:last-child {
+    border-radius: 0 5px 0 0;
+}
+
+/* テーブルカラー */
+
+table.search_table tbody tr:nth-child(even) {
+    background-color: #EBFFEB;
+}
+
+table.search_table tbody tr:nth-child(odd) {
+    background-color: white;
+}
+
+table.search_table tbody tr:hover {
+    background-color: #ccffcc;
+}
+
+table.search_table thead {
+    background-color: #394959 !important;
+    letter-spacing: 10px;
+    text-align: center;
+    color: white;
+    padding: 7px 0;
+    line-height: 20px;
+    font-size: 14px;
+}
+
+/* tablesorter用 */
+
+th.header {
+    background-image: url("./../img/bg.png");
+    cursor: pointer;
+    background-repeat: no-repeat;
+    background-position: center left;
+}
+
+th.headerSortDown {
+    background-image: url("./../img/asc.png");
+    cursor: pointer;
+    background-repeat: no-repeat;
+    background-position: center left;
+}
+
+th.headerSortUp {
+    background-image: url("./../img/desc.png");
+    cursor: pointer;
+    background-repeat: no-repeat;
+    background-position: center left;
+}
+
+/* 検索　件数表示用 */
+select[name="myTable_length"] {
+    clear: both;
+    width: 80px;
+    margin-bottom: 5px;
+    margin-left: 0px;
+    margin-right:5px;
+}
+

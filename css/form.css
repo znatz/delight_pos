@@ -1,0 +1,107 @@
+* {
+    font-family: Verdana;
+}
+
+input {
+    border: 1px solid #000000;
+}
+
+input[type="text"], input[type="password"], select {
+    padding: 0 0 0 5px;
+    font-size: 14px;
+}
+
+input[disable="disable"] {
+    font-size: 14px;
+    padding: 0 0 0 5px;
+}
+
+select {
+    float: left;
+    border: 1px solid #555555;
+    margin: 0 0 5px 18px;
+    height: 35px;
+    width: 99px;
+    font-size: 14px;
+    background: #faffbd;
+}
+
+#user_list {
+    width: 800px;
+    margin: 0 auto;
+    clear: both;
+}
+
+#buttonlist {
+    float: left;
+    text-align: center;
+    width: 300px;
+    margin: 10px 0;
+}
+
+p.list {
+    width: 700px;
+    height: 37px;
+    color: #000000;
+}
+
+p.list input[type="text"], input[type="password"], select {
+    float: left;
+    height: 35px;
+    border: 1px solid #555555;
+    background: #faffbd;
+    transition: border 0.3s;
+}
+
+p.list input[type="text"]:focus, input[type="password"]:focus, select:focus {
+    background: #ffffff;
+    border-bottom: solid 1px #FDAB07;
+}
+
+label.list {
+    display: block;
+    float: left;
+    margin: 10px 0 5px 0;
+    height: 20px;
+    width: 150px;
+    text-align: right;
+    font-size: 14px;
+}
+
+button {
+    background-image: -webkit-gradient(linear, left top, left bottom, from(#FFFFFF), to(#c2c2c2));
+    background-image: -webkit-linear-gradient(top, #FFFFFF, #c2c2c2);
+    background-image: -moz-linear-gradient(top, #FFFFFF, #c2c2c2);
+    background-image: -ms-linear-gradient(top, #FFFFFF, #c2c2c2);
+    background-image: -o-linear-gradient(top, #FFFFFF, #c2c2c2);
+    background-image: linear-gradient(to bottom, #FFFFFF, #c2c2c2);
+    filter: progid:DXImageTransform.Microsoft.gradient(GradientType=0, startColorstr=#FFFFFF, endColorstr=#c2c2c2);
+}
+
+form.search_form {
+    padding: 0 0 10px 0;
+    border: 1px solid #555;
+    -webkit-border-radius: 6px;
+    -moz-border-radius: 6px;
+    border-radius: 6px;
+    -webkit-box-shadow: 0px 1px 10px #565656;
+    -moz-box-shadow: 0px 1px 10px #565656;
+    box-shadow: 0px 1px 10px #565656;
+    border: solid #000000 1px;
+    background: #fafafa;
+}
+
+form fieldset {
+    text-align: left;
+    margin: 0 0 10px 0;
+}
+
+form legend {
+    padding: 5px 50px;
+    font-weight: bold;
+    color: white;
+    background: #394959;
+    border-radius: 5px 5px 0 0;
+    letter-spacing: 10px;
+}
+

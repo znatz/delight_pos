@@ -1,0 +1,17 @@
+<?php if(empty($successMessage) && empty($errorMessage) ) : ?>
+     <div style="height: 50px;"></div>
+<?php endif; ?>
+
+<?php if($errorMessage != "") : ?>
+	<div class="isa_error">
+	    <i class="fa fa-times-circle"></i>
+<?php echo $errorMessage; $errorMessage = ""; ?>
+	</div>
+<?php endif; ?>
+
+<?php if($successMessage != "") : ?>
+	<div class="isa_success">
+	    <i class="fa fa-check"></i>
+<?php echo $successMessage; $successMessage = ""; ?>
+	</div>
+<?php endif; ?>

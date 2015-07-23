@@ -1,0 +1,32 @@
+<?php require_once './mapping/systemsetting_class.php';
+list($company_id, $company_name) = Systemsetting::get_companyid_and_name();
+?>
+<div style="margin: 30px 0 0 10px; float: left;">
+	<img src="./img/posco.png" alt="posco_logo" title="posco_logo"/>
+</div>
+<!--<div style='height: 90px; float: left;background:url("/img/delight.png") no-repeat right center;padding-right:160px;'>-->
+    <?php
+        echo '<div style="height: 90px; float: left;background:url'.
+            '(\'/img/delight.png\') no-repeat right center;padding-right:'.
+            (230-mb_strlen($company_name)).
+            'px;">'; ?>
+	<div class="top_left_info_up">クラウドPOSシステム</div>
+	<div class="top_left_info_down"><?php echo $company_name; ?>様</div>
+</div>
+<div style="height: 90px; width: -100%; float: right;margin-right:10px;">
+	<div style="margin: 10px 0px 0 0; float: top;white-space:nowrap;">
+		<div class="top_right_info_up">企業ID：<? echo $company_id; ?></div>
+		<div class="top_right_info_up">ログインID:<?php echo trim($staff->chrLoginID); ?>
+		</div>
+		<div class="top_right_info_up">名前:<?php echo $staff->chrName ?> </div>
+		<br>
+		<div class="top_right_info_down">		
+			<a href="./password_change.php">パスワード変更</a>
+			<a href="./logout.php?PID=<?php echo $staff->chrLoginID ?>">ログアウト</a>
+		</div>
+	</div>
+	<div style="margin: 0 10px 0 0; float: right;">
+        <h4 style="line-height: 24px;vertical-align: middle; text-align: left;background: url('http://posco-cloud.sakura.ne.jp/img/miyazaki_tel.png') no-repeat right center;padding-right:200px;"> システムに関するお問合せ： </h4>
+	</div>
+</div>
+<div style="clear: both;"></div>

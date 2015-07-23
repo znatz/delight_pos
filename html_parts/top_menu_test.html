@@ -1,0 +1,15 @@
+<?php
+$tmp = Menu::get_menu_from_authority($staff->intAuthority_ID);
+?>
+<ul id="main-menu" class="sm sm-blue" style="width:1100px;">
+<?php foreach($tmp[0] as $t=>$ls) : ?>
+       <li>
+           <a href="#" class="top_title"><?php echo $t; ?></a>
+           <ul>
+            <?php foreach($ls as $l) : ?>
+               <li><a href="<?php echo array_shift($tmp[1][$t]); ?>" class="hvr-bounce-in"><?php echo $l; ?></a></li>
+            <?php endforeach; ?>
+           </ul>
+       </li>
+<?php endforeach; ?>
+</ul>

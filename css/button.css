@@ -1,0 +1,98 @@
+input.center_button, button {
+    width: 90px;
+    height: 40px;
+    margin: 30px 5px 30px 5px;
+}
+
+a.center_button {
+    float: right;
+}
+
+input.center_button, input.newID, a.center_button, button {
+    display: block;
+    text-align: center;
+    width: 80px;
+    font-size: 14px;
+    font-family: Verdana;
+    padding: 9px 18px;
+    text-decoration: none;
+
+    font-style: normal;
+    cursor: pointer;
+    float: left;
+
+    border: 1px solid #e3e3e3;
+    -webkit-box-shadow: #B4B5B5 2px 2px 2px;
+    -moz-box-shadow: #B4B5B5 2px 2px 2px;
+    box-shadow: #B4B5B5 2px 2px 2px;
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+    border-radius: 5px;
+    font-family: verdana, sans-serif;
+    text-shadow: 0px 0px 0 rgba(0, 0, 0, 0.3);
+    font-weight: normal;
+    color: #030303;
+    background: #f2f9fe;
+}
+
+input.center_button:active, button:active, a.center_button:active {
+    cursor: pointer;
+    position: relative;
+    top: 2px;
+}
+
+button {
+    background-image: -webkit-gradient(linear, left top, left bottom, from(#FFFFFF), to(#c2c2c2));
+    background-image: -webkit-linear-gradient(top, #FFFFFF, #c2c2c2);
+    background-image: -moz-linear-gradient(top, #FFFFFF, #c2c2c2);
+    background-image: -ms-linear-gradient(top, #FFFFFF, #c2c2c2);
+    background-image: -o-linear-gradient(top, #FFFFFF, #c2c2c2);
+    background-image: linear-gradient(to bottom, #FFFFFF, #c2c2c2);
+    filter: progid:DXImageTransform.Microsoft.gradient(GradientType=0, startColorstr=#FFFFFF, endColorstr=#c2c2c2);
+}
+
+/* button fade */
+.hvr-fade {
+    display: inline-block;
+    vertical-align: middle;
+    box-shadow: 0 0 1px rgba(0, 0, 0, 0);
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+    -moz-osx-font-smoothing: grayscale;
+    overflow: hidden;
+    -webkit-transition-property: color, background-color;
+}
+
+.hvr-fade:hover, .hvr-fade:focus, .hvr-fade:active {
+    border: 1px solid #6B81BC;
+    background: #a5defb;
+}
+
+/* end of button fade */
+
+/* button fade */
+.hvr-fade {
+    display: inline-block;
+    vertical-align: middle;
+    box-shadow: 0 0 1px rgba(0, 0, 0, 0);
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+    -moz-osx-font-smoothing: grayscale;
+    overflow: hidden;
+    -webkit-transition-property: color, background-color;
+}
+
+.hvr-fade:hover, .hvr-fade:focus, .hvr-fade:active {
+    border: 1px solid #6B81BC;
+    background-color: #4FE1FF;
+    background-image: -webkit-gradient(linear, left top, left bottom, from(#4FE1FF), to(#4299F8));
+    background-image: -webkit-linear-gradient(top, #4FE1FF, #4299F8);
+    background-image: -moz-linear-gradient(top, #4FE1FF, #4299F8);
+    background-image: -ms-linear-gradient(top, #4FE1FF, #4299F8);
+    background-image: -o-linear-gradient(top, #4FE1FF, #4299F8);
+    background-image: linear-gradient(to bottom, #4FE1FF, #4299F8);
+    filter: progid:DXImageTransform.Microsoft.gradient(GradientType=0, startColorstr=#4FE1FF, endColorstr=#4299F8);
+}
+
+/* end of button fade */
+

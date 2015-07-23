@@ -1,0 +1,67 @@
+* {
+    padding: 0;
+    margin: 0;
+    border: 0;
+}
+
+::-webkit-scrollbar {
+    display: none;
+}
+
+.blended_grid {
+    display: block;
+    width: 1000px;
+    overflow: auto;
+    margin: 5px auto 0 auto;
+    border-left: 1px solid #BFBFBF;
+    box-shadow: 5px 5px 0px -2px #BFBFBF;
+        border-radius: 10px;
+        background: #ffffff;
+}
+
+.pageHeader {
+    float: left;
+    clear: none;
+    height: 90px;
+    width: 1000px;
+    font-family: Verdana;
+    font-size: 12px;
+    background:#ffffff;
+}
+
+.pageContent {
+    float: left;
+    clear: none;
+    height: 800px;
+    width: 1000px;
+    overflow-x: hidden;
+    background-color: #ffffff;
+}
+
+.pageFooter {
+    float: left;
+    clear: none;
+    height: 30px;
+    width: 1000px;
+    overflow: hidden;
+    background: #ffffff;
+    border: 1px solid #31637d;
+    background: #ffffff;
+    text-align: center;
+    margin:0 auto;
+    /* Old browsers */
+    background: -moz-linear-gradient(top, #ffffff 0%, #31637d 100%);
+    /* FF3.6+ */
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #ffffff), color-stop(100%, #31637d));
+    /* Chrome,Safari4+ */
+    background: -webkit-linear-gradient(top, #ffffff 0%, #31637d 100%);
+    /* Chrome10+,Safari5.1+ */
+    background: -o-linear-gradient(top, #ffffff 0%, #31637d 100%);
+    /* Opera 11.10+ */
+    background: -ms-linear-gradient(top, #ffffff 0%, #31637d 100%);
+    /* IE10+ */
+    background: linear-gradient(to bottom, #ffffff 0%, #31637d 100%);
+    /* W3C */
+    filter: progid : DXImageTransform.Microsoft.gradient( startColorstr='#ffffff', endColorstr='#31637d', GradientType=0);
+    /* IE6-9 */
+}
