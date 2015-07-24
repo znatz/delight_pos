@@ -19,8 +19,9 @@ if (isset($_POST["submit"])) {
         $errorMessage = "再入力と新パスワード一致ではありません。";
     } else {
 
+        /*
         $connection = new Connection();
-        $query = "SELECT * FROM staff WHERE chrLogin_ID = '" . $staff->chrLoginID . "'";
+        $query = "SELECT * FROM staff WHERE chrLogin_ID = '" . $staff->chrLogin_ID . "'";
         $result = $connection->result($query);
         if (!$result) {
             print('クエリーが失敗しました。' . mysql_error());
@@ -30,15 +31,21 @@ if (isset($_POST["submit"])) {
 
         while ($row = mysql_fetch_array($result, MYSQL_ASSOC)) {
             $db_hashed_pwd = $row['chrPasswordHash'];
-            $new_staff = new Staff($row['chrID'], $row['chrName'], $row['chrLogin_ID'], $row['intAuthority_ID'], $row['chrPasswordHash'], $row['chrSession']);
         }
+        */
+
+        $resetStaff = Staff::findBy('chrLogin_ID', $staff->chrLogin_ID );
+        $db_hashed_pwd = $resetStaff->chrPasswordHash;
 
 
         if (password_verify($_POST["oldpass"], $db_hashed_pwd)) {
-            $query = "UPDATE staff SET chrPasswordHash='" . password_hash($_POST["newpass"], PASSWORD_DEFAULT) . "' WHERE chrLogin_ID= '" . $staff->chrLoginID . "'";
+            /*
+            $query = "UPDATE staff SET chrPasswordHash='" . password_hash($_POST["newpass"], PASSWORD_DEFAULT) . "' WHERE chrLogin_ID= '" . $staff->chrLogin_ID . "'";
             $connection->result($query);
-            $successMessage = "パスワードを更新しました。";
             $connection->close();
+            */
+            Staff::update_to_column('chrPasswordHash', password_hash($_POST['newpass'], PASSWORD_DEFAULT), 'chrLogin_ID', $resetStaff->chrLogin_ID);
+            $successMessage = "パスワードを更新しました。";
         } else {
             $errorMessage = "旧パスワードが間違います。";
         }
@@ -168,7 +175,7 @@ if (isset($_POST["submit"])) {
                     <p class="list">
                         <label class="list">ユーザーID</label>
                         <input style="width:300px" type="text" size="10" disabled="disabled"
-                               value="<?php echo $staff->chrLoginID ?>"/>
+                               value="<?php echo $staff->chrLogin_ID ?>"/>
                     </p>
 
                     <p class="list">
@@ -179,7 +186,7 @@ if (isset($_POST["submit"])) {
 
                     <p class="list">
                         <label  class="list">新パスワード</label>
-                        <input style="width:300px" type="password" size="10" name="newpass"
+                        <input style="width:300px" type="password" size="10" name="newpass" id="password"
                                class="password validate[required,onlyNumberSp,maxSize[6]]"/>
                     </p>
 

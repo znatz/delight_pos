@@ -149,24 +149,27 @@ function showCode($Pos)
 }
 
 /* ------------------------------------------------------------------------   Database Helper ---------------------------------------------------- */
-function insert_to_table_columns($table_name, $columns, $values) {
+/* TODO : Add mysqli_real_excape_string to check every value being inserted */
+/* ------------------------------------------------------------------------   Database Helper ---------------------------------------------------- */
+function insert_to_table_columns($table_name, $columns, $values)
+{
     $connection = mysqli_connect(DB_HOST, DB_USER, DB_PASS, DB_NAME);
     mysqli_set_charset($connection, "utf8");
-    $query = 'SELECT '.implode(',',$columns).' FROM '.$table_name;
+    $query = 'SELECT ' . implode(',', $columns) . ' FROM ' . $table_name;
     $result = $connection->query($query);
 
-    for ($i=0; $i<count($values); $i++) {
-        $types[] = $result->fetch_field_direct($i)->type ;
+    for ($i = 0; $i < count($values); $i++) {
+        $types[] = $result->fetch_field_direct($i)->type;
     }
 
     foreach ($values as $key => $val) {
-        if ($types[$key] == MYSQLI_TYPE_VAR_STRING) $quoted[] = '"'.$val.'"';
+        if ($types[$key] == MYSQLI_TYPE_VAR_STRING) $quoted[] = '"' . $val . '"';
         else $quoted[] = $val;
     }
 
     $connection = mysqli_connect(DB_HOST, DB_USER, DB_PASS, DB_NAME);
     mysqli_set_charset($connection, "utf8");
-    $query = 'INSERT INTO '.$table_name.' ('.implode(',',$columns).') VALUES (';
+    $query = 'INSERT INTO ' . $table_name . ' (' . implode(',', $columns) . ') VALUES (';
 
     $query .= implode(', ', $quoted);
 
@@ -177,59 +180,85 @@ function insert_to_table_columns($table_name, $columns, $values) {
     return $success;
 }
 
-function update_to_table_columns($table_name, $columns, $values, $id) {
+function update_to_table_columns($table_name, $columns, $values, $id)
+{
     $connection = mysqli_connect(DB_HOST, DB_USER, DB_PASS, DB_NAME);
     mysqli_set_charset($connection, "utf8");
-    $query = 'SELECT '.implode(',',$columns).' FROM '.$table_name;
+    $query = 'SELECT ' . implode(',', $columns) . ' FROM ' . $table_name;
     $result = $connection->query($query);
 
-    for ($i=0; $i<count($values); $i++) {
-        $types[] = $result->fetch_field_direct($i)->type ;
+    for ($i = 0; $i < count($values); $i++) {
+        $types[] = $result->fetch_field_direct($i)->type;
     }
 
     foreach ($values as $key => $val) {
-        if ($types[$key] == MYSQLI_TYPE_VAR_STRING) $quoted[] = '"'.$val.'"';
+        if ($types[$key] == MYSQLI_TYPE_VAR_STRING) $quoted[] = '"' . $val . '"';
         else $quoted[] = $val;
     }
 
     $connection = mysqli_connect(DB_HOST, DB_USER, DB_PASS, DB_NAME);
     mysqli_set_charset($connection, "utf8");
-    $query = 'UPDATE '.$table_name.' SET ';
-    for ($i=0; $i<count($values); $i++) {
-        $query .= ' `'.$columns[$i].'`='.$quoted[$i].',';
+    $query = 'UPDATE ' . $table_name . ' SET ';
+    for ($i = 0; $i < count($values); $i++) {
+        $query .= ' `' . $columns[$i] . '`=' . $quoted[$i] . ',';
     }
 
     $query = rtrim($query, ',');
 
-    if(!empty($id)) $query .= " WHERE `chrID` =".$id;
+    if (!empty($id)) $query .= " WHERE `chrID` =" . $id;
     $connection->query($query);
 
     $success = mysqli_errno($connection) > 0 ? false : true;
     return $success;
 }
 
+/* WIP*/
+function update_to_table_column($table_name, $column, $val, $pk, $id)
+{
+    $connection = mysqli_connect(DB_HOST, DB_USER, DB_PASS, DB_NAME);
+    mysqli_set_charset($connection, "utf8");
+    $query = 'SELECT ' . $column . ' FROM ' . $table_name;
+    $result = $connection->query($query);
 
-function insert_to_table($table_name, $values) {
+    $type = $result->fetch_field_direct(0)->type;
+
+    if ($val == 'null') {
+        $quoted = "NULL";
+    } else {
+        if ($type == MYSQLI_TYPE_VAR_STRING) $quoted = "'" . $val . "'"; else $quoted = $val;
+    }
+    $connection = mysqli_connect(DB_HOST, DB_USER, DB_PASS, DB_NAME);
+    mysqli_set_charset($connection, "utf8");
+    $query = 'UPDATE ' . $table_name . ' SET ' . $column . '=' . $quoted . ' WHERE ' . $pk . '=' . $id;
+
+    $connection->query($query);
+    echo mysqli_error($connection);
+    $success = mysqli_errno($connection) > 0 ? false : true;
+    return $success;
+}
+
+function insert_to_table($table_name, $values)
+{
 
     $connection = mysqli_connect(DB_HOST, DB_USER, DB_PASS, DB_NAME);
     mysqli_set_charset($connection, "utf8");
-    $query = 'SELECT * FROM '.$table_name;
+    $query = 'SELECT * FROM ' . $table_name;
 
 
     $types = array();
     $result = $connection->query($query);
-        for ($i=0; $i<count($values); $i++) {
-           $types[] = $result->fetch_field_direct($i)->type ;
-        }
+    for ($i = 0; $i < count($values); $i++) {
+        $types[] = $result->fetch_field_direct($i)->type;
+    }
 
     foreach ($values as $key => $val) {
-        if ($types[$key] == MYSQLI_TYPE_VAR_STRING) $quoted[] = '"'.$val.'"';
+        if ($types[$key] == MYSQLI_TYPE_VAR_STRING) $quoted[] = '"' . $val . '"';
         else $quoted[] = $val;
     }
 
     $connection = mysqli_connect(DB_HOST, DB_USER, DB_PASS, DB_NAME);
     mysqli_set_charset($connection, "utf8");
-    $query = 'INSERT INTO '.$table_name.' VALUES (';
+    $query = 'INSERT INTO ' . $table_name . ' VALUES (';
 
     $query .= implode(', ', $quoted);
 
@@ -239,27 +268,12 @@ function insert_to_table($table_name, $values) {
     $success = mysqli_errno($connection) == 0 ? 1 : 0;
     return $success;
 }
-function get_one_column($table_name, $column) {
+
+function get_one_column($table_name, $column)
+{
     $connection = mysqli_connect(DB_HOST, DB_USER, DB_PASS, DB_NAME);
     mysqli_set_charset($connection, "utf8");
-    $query = 'SELECT '. $column.' FROM '.$table_name.' ORDER BY '.$column;
-    $result = $connection->query($query);
-    if ($result->num_rows == 1) {
-        $row = mysqli_fetch_assoc($result);
-        $contents[] = $row[$column];
-    }
-
-    while ($row = $result->fetch_array(MYSQLI_ASSOC)) {
-
-        $contents[] = $row[$column];
-    }
-
-    return $contents;
-}
-function get_one_distinct_column($table_name, $column) {
-    $connection = mysqli_connect(DB_HOST, DB_USER, DB_PASS, DB_NAME);
-    mysqli_set_charset($connection, "utf8");
-    $query = 'SELECT DISTINCT '. $column.' FROM '.$table_name;
+    $query = 'SELECT ' . $column . ' FROM ' . $table_name . ' ORDER BY ' . $column;
     $result = $connection->query($query);
     if ($result->num_rows == 1) {
         $row = mysqli_fetch_assoc($result);
@@ -274,41 +288,73 @@ function get_one_distinct_column($table_name, $column) {
     return $contents;
 }
 
-function get_columns_order_by($table_name, $columns, $id) {
+function get_one_distinct_column($table_name, $column)
+{
     $connection = mysqli_connect(DB_HOST, DB_USER, DB_PASS, DB_NAME);
     mysqli_set_charset($connection, "utf8");
-    $query = 'SELECT '. implode(',',$columns).' FROM '.$table_name.' ORDER BY '.$id;
+    $query = 'SELECT DISTINCT ' . $column . ' FROM ' . $table_name;
+    $result = $connection->query($query);
+    if ($result->num_rows == 1) {
+        $row = mysqli_fetch_assoc($result);
+        $contents[] = $row[$column];
+    }
+
+    while ($row = $result->fetch_array(MYSQLI_ASSOC)) {
+
+        $contents[] = $row[$column];
+    }
+
+    return $contents;
+}
+
+function get_columns_order_by($table_name, $columns, $id)
+{
+    $connection = mysqli_connect(DB_HOST, DB_USER, DB_PASS, DB_NAME);
+    mysqli_set_charset($connection, "utf8");
+    $query = 'SELECT ' . implode(',', $columns) . ' FROM ' . $table_name . ' ORDER BY ' . $id;
     $result = $connection->query($query);
     if ($result->num_rows == 1) {
         $row = mysqli_fetch_assoc($result);
         $e = array();
-        foreach ($columns as $col) { array_push($e, $row[$col]);}
+        foreach ($columns as $col) {
+            array_push($e, $row[$col]);
+        }
         $contents[] = $e;
     }
 
     while ($row = $result->fetch_array(MYSQLI_ASSOC)) {
         $e = array();
-        foreach ($columns as $col) { array_push($e, $row[$col]);}
+        foreach ($columns as $col) {
+            array_push($e, $row[$col]);
+        }
         $contents[] = $e;
     }
 
     return $contents;
 }
-function get_distinct_columns_order_by($table_name, $columns, $id) {
+
+function get_distinct_columns_order_by($table_name, $columns, $id)
+{
     $connection = mysqli_connect(DB_HOST, DB_USER, DB_PASS, DB_NAME);
     mysqli_set_charset($connection, "utf8");
-    $query = 'SELECT DISTINCT '. implode(',',$columns).' FROM '.$table_name.' ORDER BY '.$id;
+    $query = 'SELECT DISTINCT ' . implode(',', $columns) . ' FROM ' . $table_name . ' ORDER BY ' . $id;
+    echo $query;
     $result = $connection->query($query);
+    echo mysqli_error($connection);
     if ($result->num_rows == 1) {
         $row = mysqli_fetch_assoc($result);
         $e = array();
-        foreach ($columns as $col) { array_push($e, $row[$col]);}
+        foreach ($columns as $col) {
+            array_push($e, $row[$col]);
+        }
         $contents[] = $e;
     }
 
     while ($row = $result->fetch_array(MYSQLI_ASSOC)) {
         $e = array();
-        foreach ($columns as $col) { array_push($e, $row[$col]);}
+        foreach ($columns as $col) {
+            array_push($e, $row[$col]);
+        }
         $contents[] = $e;
     }
 
@@ -321,7 +367,7 @@ function get_all_from_table($table_name, $query)
     $connection = mysqli_connect(DB_HOST, DB_USER, DB_PASS, DB_NAME);
     mysqli_set_charset($connection, "utf8");
 
-    $query = ifNotEmpty($query,"SELECT * FROM " . strtolower($table_name));
+    $query = ifNotEmpty($query, "SELECT * FROM " . strtolower($table_name));
 
     $table_name = trim($table_name, '`');
     $table_name = rtrim($table_name, '``');
@@ -329,7 +375,7 @@ function get_all_from_table($table_name, $query)
     $result = mysqli_query($connection, $query);
     $contents = array();
 
-    if(is_bool($result)) return $result;
+    if (is_bool($result)) return $result;
 
     if (mysqli_num_rows($result) == 1) {
         $row = mysqli_fetch_assoc($result);

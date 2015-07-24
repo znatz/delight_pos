@@ -14,7 +14,7 @@ global $errorMessage;
 global $successMessage;
 $errorMessage = "";
 $successMessage = "";
-$targetCategory = Category::get_one_empty_category();;
+$targetCategory = new Category();
 
 // ログイン状態チェック
 if (!isset($_SESSION['staff']))
@@ -24,10 +24,7 @@ if (!isset($_SESSION['staff']))
 $staff = unserialize($_SESSION["staff"]);
 
 // リストを表示ため、全担当データを一回取り出す
-$contents = Category::get_all_category();
-
-// 大分類のIDを取り出す
-$catids = Category::get_distinct_category_chrID();
+$contents = Category::get_all();
 
 // 新規ボタンの処理
 if (isset($_POST['newID'])) {
@@ -37,17 +34,14 @@ if (isset($_POST['newID'])) {
 
 // リスト内ラジオボタンの処理
 if (isset($_POST["targetID"])) {
-
-    $targetCategory = Category::get_one_category($_POST["targetID"]);
-
-    // 選択を解除
+    $targetCategory = Category::find($_POST["targetID"]);
     unset($_POST["target"]);
-    $contents = Category::get_all_category();
+    $contents = Category::get_all();
 }
 
 // 削除ボタン処理
     if (isset($_POST['delete'])) {
-        if (Category::delete_one_category($_POST['delete'])) {
+        if (Category::delete($_POST['delete'])) {
             $contents = Category::get_all_category();
             $successMessage = "削除しました。";
         } else {
@@ -77,7 +71,7 @@ if (isset($_POST["submit"])) {
     $_POST["targetID"] = $chrID;
 }
 
-$contents = Category::get_all_category();
+$contents = Category::get_all();
 ?>
 
 <!DOCTYPE html>

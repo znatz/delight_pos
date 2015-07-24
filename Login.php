@@ -1,7 +1,7 @@
 <?php
-require './utils/password.php';
-require './utils/connect.php';
-require_once './mapping/staff_class.php';
+require_once 'password.php';
+require_once 'connect.php';
+require_once 'staff_class.php';
 
 session_start();
 $_SESSION = array();
@@ -20,44 +20,28 @@ if (isset($_POST["submit"])) {
 
     if (!empty($_POST["loginid"]) && !empty($_POST["password"])) {
 
-        // mysqlへの接続
-        $connection = new Connection();
-
-        $loginid = mysql_real_escape_string($_POST["loginid"]);
-        $query = "SELECT * FROM staff WHERE chrLogin_ID = '" . $loginid . "'";
-        $result = $connection->result($query);
-        if (!$result) {
+        $staff = Staff::findBy('chrLogin_ID', $_POST['loginid']);
+        if (!$staff) {
             print('クエリーが失敗しました。' . mysql_error());
             $connection->close();
             exit();
         }
-
-        while ($row = mysql_fetch_array($result, MYSQL_ASSOC)) {
-            $db_hashed_pwd = $row['chrPasswordHash'];
-            $staff = new Staff($row['chrID'], $row['chrName'], $row['chrLogin_ID'], $row['intAuthority_ID'], $row['chrPasswordHash'], $row['chrSession']);
-        }
-
-        if (password_verify($_POST["password"], $db_hashed_pwd)) {
+        if (password_verify($_POST['password'], $staff->chrPasswordHash)) {
             if (is_null($staff->chrSession)) {
-
-               $staff = Staff::update_staff_session($staff);
+                $staff = Staff::update_staff_session($staff);
                 $_SESSION["loginid"] = $_POST["loginid"];
                 $_SESSION["staff"] = serialize($staff);
                 header("Location: index.php");
-                exit;
             } else {
                 $errorMessage = "重複ログイン。";
-                $connection->close();
                 $_SESSION["staff"] = serialize($staff);
                 header("Location: force_logout.php");
             }
-
         } else {
             $errorMessage = "ログインIDあるいはパスワードに誤りがあります。";
-            $connection->close();
         }
-    } else {
     }
+
 }
 ?>
 <html lang="ja">
@@ -66,7 +50,6 @@ if (isset($_POST["submit"])) {
     <title>POSCO</title>
     <link rel="stylesheet" href="../css/validationEngine.jquery.css" type="text/css"/>
     <link rel="stylesheet" type="text/css" href="./css/blended_layout.css">
-    <link rel="stylesheet" href="../css/template.css" type="text/css"/>
     <link rel="stylesheet" href="../css/form.css" type="text/css"/>
     <link rel="stylesheet" href="../css/button.css" type="text/css"/>
     <link rel="stylesheet" href="../css/table.css" type="text/css"/>
@@ -82,54 +65,9 @@ if (isset($_POST["submit"])) {
         });
     </script>
     <style>
-        * {
-            font-family: Verdana;
+       label.list {
+            padding-right:10px;
         }
-
-        input {
-            border: 1px solid #000000;
-        }
-
-        input[type="text"], input[type="password"], select {
-            padding: 0 0 0 5px;
-            font-size: 14px;
-        }
-
-        input[disable="disable"] {
-            font-size: 14px;
-            padding: 0 0 0 5px;
-        }
-
-        p.list {
-            width: 500px;
-            height: 37px;
-            color: #000000;
-        }
-
-        p.list input[type="text"], input[type="password"], select {
-            float: left;
-            height: 35px;
-            border: 1px solid #555555;
-            background: #faffbd;
-            transition: border 0.3s;
-            margin-left: 10px;
-        }
-
-        p.list input[type="text"]:focus, input[type="password"]:focus, select:focus {
-            background: #ffffff;
-            border-bottom: solid 1px #FDAB07;
-        }
-
-        label.list {
-            display: block;
-            float: left;
-            margin: 10px 0 5px 0;
-            height: 20px;
-            width: 150px;
-            text-align: right;
-            font-size: 14px;
-        }
-
         .blended_grid, .pageContent {
             background: white;
             margin: 0 auto;
@@ -144,11 +82,6 @@ if (isset($_POST["submit"])) {
             width: 700px;
             height: 400px;
         }
-
-        .pageFooter {
-            width: 900px;
-        }
-
     </style>
 </head>
 <body>
@@ -201,11 +134,7 @@ if (isset($_POST["submit"])) {
         </div>
         <br/>
     </div>
-    <div class="pageFooter">
-        <h4 style="color:#ffffff;text-align:center;padding:2px 0 0 0; text-align: center; width:100%;">CopyRight 2015
-            POSCO Co.Ltd All Rights
-            Reserved</h4>
-    </div>
+    <? include('./html_parts/footer.html'); ?>
 </div>
 </body>
 </html>

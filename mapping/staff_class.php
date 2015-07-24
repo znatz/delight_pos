@@ -7,7 +7,7 @@ require_once 'ZModel.php';
 class Staff extends ZModel
 {
     protected static $table = 'staff';
-    protected $props = [ "chrID", "chrName", "chrLogin_ID", "intAuthority_ID", "chrPassword_Hash", "chrSession"];
+    protected $props = [ "chrID", "chrName", "chrLogin_ID", "intAuthority_ID", "chrPasswordHash", "chrSession"];
     protected static $columns = [ "chrID", "chrName", "chrLogin_ID", "intAuthority_ID", "chrPasswordHash"];
 
     function Staff()
@@ -23,7 +23,7 @@ class Staff extends ZModel
     {
         $all_staffs = parent::get_all();
         foreach ($all_staffs as $staff) {
-            $staff->chrPassword_Hash = "";
+            $staff->chrPasswordHash = "";
             $staff->chrSession = "";
         }
         return $all_staffs;
@@ -47,7 +47,7 @@ class Staff extends ZModel
     public static function get_one_staff($chrID)
     {
         $staff = parent::find($chrID);
-        $staff->chrPassword_Hash = "";
+        $staff->chrPasswordHash = "";
         $staff->chrSession = "";
         return $staff;
     }

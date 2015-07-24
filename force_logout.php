@@ -6,25 +6,18 @@ require_once './mapping/staff_class.php';
 session_start();
 $errorMessage = "";
 
-// 続けボタンはHTML内に処理する
-// 戻るボタン処理
 if (isset($_POST["back"])) header("Location: Login.php");
 
 // 強制ログアウトボタン処理
 if (isset($_POST["submit"])) {
-                $staff = unserialize($_SESSION["staff"]);
-                session_regenerate_id(true);
-                $connection = new Connection;
-/*                $query = "UPDATE staff SET chrSession='" . session_id() . "' WHERE chrLogin_ID= '" . $staff->chrLoginID . "'";*/
-    $query = "UPDATE staff SET chrSession=null WHERE chrLogin_ID= '" . $staff->chrLoginID . "'";
-                $connection->result($query);
-    echo mysql_error();
-                $connection->close();
-                $staff->chrSession = session_id();
-                $_SESSION["staff"] = serialize($staff);
-/*                header("Location: index.php");*/
+    $staff = unserialize($_SESSION["staff"]);
+    session_regenerate_id(true);
+    $connection = new Connection;
+    Staff::update_to_column('chrSession', 'null', 'chrLogin_ID', $staff->chrLogin_ID);
+    $staff->chrSession = session_id();
+    $_SESSION["staff"] = serialize($staff);
     header("Location: Login.php");
-                exit;
+    exit;
 
 }
 ?>
@@ -131,24 +124,31 @@ if (isset($_POST["submit"])) {
     </div>
     </h1>
     <div class="pageContent">
-            <form method="POST" id="login_form" style="margin:10px 0; width:700px;height:300px;text-align: center;"
-                  class="search_form">
-                <p class="list" style="text-align: center;">
-                         <p>「重複ログインエラー」が発生したために、ログインできませんでした。</p>
-                <br>
-                        <p>入力されたユーザーIDの接続情報がシステムに残っています。</p><br/>
-                <br>
-                        <p>IDを複数人で同時に使用されていない場合は、</p>
-                <br>
-                        <p>次の画面に進み「強制ログアウト処理」を行ってください。</p>
-                <br>
-                        <p>強制ログアウトを行うと、IDの接続情報を解除することができます。</p>
-                <br>
-                            <input class="center_button hvr-fade" style="width:100px;margin:0 10px 0 240px;;" type="submit" name="back" value="＜＜戻る"/>
-                            <input class="center_button hvr-fade" style="width:100px;margin:0 100px 0 0;" type="submit" name="submit" value="＞＞続ける"/>
-               </p>
+        <form method="POST" id="login_form" style="margin:10px 0; width:700px;height:300px;text-align: center;"
+              class="search_form">
+            <p class="list" style="text-align: center;">
 
-           </form>
+            <p>「重複ログインエラー」が発生したために、ログインできませんでした。</p>
+            <br>
+
+            <p>入力されたユーザーIDの接続情報がシステムに残っています。</p><br/>
+            <br>
+
+            <p>IDを複数人で同時に使用されていない場合は、</p>
+            <br>
+
+            <p>次の画面に進み「強制ログアウト処理」を行ってください。</p>
+            <br>
+
+            <p>強制ログアウトを行うと、IDの接続情報を解除することができます。</p>
+            <br>
+            <input class="center_button hvr-fade" style="width:100px;margin:0 10px 0 240px;;" type="submit" name="back"
+                   value="＜＜戻る"/>
+            <input class="center_button hvr-fade" style="width:100px;margin:0 100px 0 0;" type="submit" name="submit"
+                   value="＞＞続ける"/>
+            </p>
+
+        </form>
         <br/>
     </div>
     <div class="pageFooter">
