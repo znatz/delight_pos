@@ -59,8 +59,6 @@ class ZModel
     }
     public static function update_to_column($column, $value, $pk, $id)
     {
-//        $query = 'UPDATE '.static::$table.' SET '.$column. '=' . $value . ' WHERE '.$pk.'= ' . $id;
-//        return get_all_from_table(static::$table, $query);
         return update_to_table_column(static::$table, $column, $value, $pk, $id);
     }
 

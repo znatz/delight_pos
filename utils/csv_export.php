@@ -82,10 +82,15 @@ $stream = fopen('php://output', 'w');
 
 fputcsv($stream, $header);
 
+$header_count = count($header);
+
 foreach($instances as $instance) {
 
+    $c = 0;
 	foreach(get_object_vars($instance) as $prop) {
+        if($c >= $header_count) break;
 		$row[] = $prop;
+        $c ++;
 	}
 	fputcsv($stream, $row);
 	$row = "";

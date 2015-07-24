@@ -1,15 +1,5 @@
 <?php
-require_once './utils/password.php';
-require_once './utils/connect.php';
-require_once './mapping/goods_class.php';
-require_once './mapping/staff_class.php';
-require_once 'group_class.php';
-require_once 'seller_class.php';
-require_once 'maker_class.php';
-require_once './utils/html_parts_generator.php';
-require_once './utils/helper.php';
-require_once './mapping/menu_class.php';
-
+require_once 'helper.php';
 
 session_start();
 session_check();

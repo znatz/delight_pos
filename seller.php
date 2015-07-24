@@ -1,13 +1,5 @@
 <?php
-require_once './utils/password.php';
-require_once './utils/connect.php';
-require_once './mapping/seller_class.php';
-require_once './mapping/staff_class.php';
-require_once './mapping/category_class.php';
-require_once './utils/html_parts_generator.php';
-require_once './utils/helper.php';
-require_once './mapping/menu_class.php';
-
+require_once 'helper.php';
 
 session_start();
 session_check();
@@ -15,39 +7,37 @@ global $errorMessage;
 global $successMessage;
 $errorMessage = "";
 $successMessage = "";
-$targetSeller = Seller::get_one_empty_seller();;
+$targetSeller = new Seller;
 
 // ログイン状態チェック
 if (!isset($_SESSION['staff']))
     header("Location: Login.php");
 
-// 今ログインしている担当をセッションから取り出す、オブジェクトに一旦保存
 $staff = unserialize($_SESSION["staff"]);
 
-// $_POSTデーターを変数化
 extract($_POST);
 
 
 // 　登録処理
 if (isset($submit)) {
-    if (Seller::insert_one_seller($chrID, $chrName, $chrShort_Name, $chrPos, $chrAddress, $chrAddress_No, $chrTel, $chrFax, $chrStaff) )
+    if (Seller::insert_values([$chrID, $chrName, $chrShort_Name, $chrPos, $chrAddress, $chrAddress_No, $chrTel, $chrFax, $chrStaff]))
     {
         $successMessage = "追加しました。";
     } else {
-        if (Seller::update_one_seller($chrID, $chrName, $chrShort_Name, $chrPos, $chrAddress, $chrAddress_No, $chrTel, $chrFax, $chrStaff))
+        if (Seller::update_to_columns([$chrID, $chrName, $chrShort_Name, $chrPos, $chrAddress, $chrAddress_No, $chrTel, $chrFax, $chrStaff]))
         {
             $successMessage = "更新しました。";
         };
     }
 
     // 再度リストを更新
-    $contents = Seller::get_all_seller();
+    $contents = Seller::get_all();
     $_POST["targetID"] = $chrID;
 }
 
 // chrID取得の為データを一回取り出す
-$contents = Seller::get_all_seller();
-$targetSeller = Seller::get_all_seller();
+$contents = Seller::get_all();
+$targetSeller = Seller::get_all();
 $chrID = $targetSeller->chrID;
 
 //検索ボタンの処理
@@ -56,18 +46,18 @@ $Address = issetThen($_POST['SearchPost'], showCode($_POST['chrPos']));
 // リスト内ラジオボタンの処理
 if (isset($targetID)) {
 
-    $targetSeller = Seller::get_one_seller($_POST["targetID"]);
+    $targetSeller = Seller::find($_POST["targetID"]);
 
     // 選択を解除
     unset($_POST["target"]);
-    $contents = Seller::get_all_seller();
+    $contents = Seller::get_all();
 
 }
 
 // 削除ボタン処理
 if (isset($delete)) {
-    if (Seller::delete_one_seller($delete)) {
-        $contents = Seller::get_all_seller();
+    if (Seller::delete($delete)) {
+        $contents = Seller::get_all();
         $successMessage = "削除しました。";
     } else {
         $errorMessage = "削除失敗しました。";

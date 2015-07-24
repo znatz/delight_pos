@@ -1,17 +1,5 @@
 <?php
-require_once './utils/password.php';
-require_once './utils/connect.php';
-require_once './mapping/goods_class.php';
-require_once './mapping/staff_class.php';
-require_once './utils/html_parts_generator.php';
-require_once './utils/helper.php';
-require_once './mapping/menu_class.php';
-require_once 'group_class.php';
-require_once 'goods_class.php';
-require_once 'seller_class.php';
-require_once 'maker_class.php';
-require_once 'unit_class.php';
-
+require_once 'helper.php';
 
 session_start();
 session_check();
@@ -109,9 +97,9 @@ if (isset($_POST["submit"])) {
 }
 
 $groups = Group::get_distinct_group_chrID();
-$sellers = Seller::get_all_seller();
-$makers = Maker::get_all_maker();
-$units = Unit::get_all_unit();
+$sellers = Seller::get_all();
+$makers = Maker::get_all();
+$units = Unit::get_all();
 
 $contents = Goods::get_all_goods();
 ?>
@@ -141,7 +129,6 @@ $contents = Goods::get_all_goods();
                 $("#list").submit();
             });
 
-//            echo '<td style="width:52px;text-align:center;"><input type="radio" onclick="javascript: submit()" name="targetID" id="targetID" value="' . $row->chrID . '"/></td>';
 
             $('#myTable').DataTable({
                 "language": {
@@ -196,7 +183,7 @@ $contents = Goods::get_all_goods();
 
 
         input[type="text"], input[type="password"], select {
-            padding: 0 0 0 5px;
+            padding: 0 5px 0 5px;
             font-size: 14px;
         }
 
@@ -332,7 +319,7 @@ $contents = Goods::get_all_goods();
 
 
                         <select
-                            style="width:397px;"
+                            style="width:402px;"
                             tabindex="1"
                             name="chrSeller_ID" >
                             <option/>
@@ -351,7 +338,7 @@ $contents = Goods::get_all_goods();
                     <p class="list">
                         <label class="list">メーカー</label>
                         <select
-                            style="width:397px;"
+                            style="width:402px;"
                             tabindex="2"
                             name="chrMaker_ID" >
                             <option/>
@@ -369,7 +356,7 @@ $contents = Goods::get_all_goods();
 
                         <select
                             tabindex="3"
-                            name="chrGroup_ID" style="width:397px;">
+                            name="chrGroup_ID" style="width:402px;">
                             <option/>
                             <? foreach ($groups as $g) : ?>
                                 <option
@@ -384,7 +371,7 @@ $contents = Goods::get_all_goods();
                     <p class="list">
                         <label class="list">品種</label>
                         <select
-                            style="width:397px;"
+                            style="width:402px;"
                             tabindex="2"
                             name="chrUnit_ID" >
                             <option/>

@@ -3,6 +3,9 @@
 require_once 'connect.php';
 require_once 'ConstantDb.php';
 
+function __autoload($class_name) {
+    require_once strtolower($class_name).'_class.php';
+}
 function prefix_ifNotEmpty($prefix, $a)
 {
     if (!empty($a)) return $prefix . $a;
@@ -338,7 +341,6 @@ function get_distinct_columns_order_by($table_name, $columns, $id)
     $connection = mysqli_connect(DB_HOST, DB_USER, DB_PASS, DB_NAME);
     mysqli_set_charset($connection, "utf8");
     $query = 'SELECT DISTINCT ' . implode(',', $columns) . ' FROM ' . $table_name . ' ORDER BY ' . $id;
-    echo $query;
     $result = $connection->query($query);
     echo mysqli_error($connection);
     if ($result->num_rows == 1) {

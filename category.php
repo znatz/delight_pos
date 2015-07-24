@@ -1,12 +1,5 @@
 <?php
-require_once './utils/password.php';
-require_once './utils/connect.php';
-require_once './mapping/category_class.php';
-require_once './mapping/staff_class.php';
-require_once './utils/html_parts_generator.php';
-require_once './utils/helper.php';
-require_once './mapping/menu_class.php';
-
+require_once 'helper.php';
 
 session_start();
 session_check();
@@ -51,23 +44,19 @@ if (isset($_POST["targetID"])) {
 
 // 　登録処理
 if (isset($_POST["submit"])) {
-    if (Category::insert_one_category($_POST['chrID'],
-        $_POST['chrName'])
+    if (Category::insert_values([$_POST['chrID'],
+        $_POST['chrName']])
     ) {
         $successMessage = "追加しました。";
     } else {
-        // 更新処理開始
-        if (mysql_errno() == 1062) {
-            if (Category::update_one_category($_POST['chrID'],
-                $_POST['chrName'])
-            ) {
+            if (Category::update_to_column('chrName',$_POST['chrName'],'chrID',$_POST['chrID']))
+            {
                 $successMessage = "更新しました。";
             };
-        }
     }
 
     // 再度リストを更新
-    $contents = Category::get_all_category();
+    $contents = Category::get_all();
     $_POST["targetID"] = $chrID;
 }
 
@@ -144,85 +133,6 @@ $contents = Category::get_all();
     </script>
     <title>POSCO</title>
     <meta name="description" content="POSCO">
-    <style type="text/css">
-        * {
-            font-family: Verdana;
-        }
-
-        input {
-            border: 1px solid #000000;
-        }
-
-        input[type="text"], input[type="password"], select {
-            padding: 0 0 0 5px;
-            font-size: 14px;
-        }
-
-        input[disable="disable"] {
-            font-size: 14px;
-            padding: 0 0 0 5px;
-        }
-
-        select {
-            float: left;
-            border: 1px solid #555555;
-            margin: 0 0 0px 18px;
-            width: 199px;
-            font-size: 14px;
-            background: #faffbd;
-        }
-
-        #user_list {
-            width: 800px;
-            margin: 0 auto;
-            clear: both;
-        }
-
-        #buttonlist {
-            margin: 80px 0 0 0;
-        }
-
-        p.list {
-            width: 700px;
-            height: 37px;
-            color: #000000;
-        }
-
-        p.list input[type="text"], input[type="password"], select {
-            float: left;
-            height: 35px;
-            border: 1px solid #555555;
-            background: #faffbd;
-            transition: border 0.3s;
-        }
-
-        p.list input[type="text"]:focus, input[type="password"]:focus, select:focus {
-            background: #ffffff;
-            border-bottom: solid 1px #FDAB07;
-        }
-
-        label.list {
-            display: block;
-            float: left;
-            margin: 10px 0 5px 0;
-            height: 20px;
-            width: 150px;
-            text-align: right;
-            font-size: 14px;
-        }
-
-        button {
-            background-image: -webkit-gradient(linear, left top, left bottom, from(#FFFFFF), to(#c2c2c2));
-            background-image: -webkit-linear-gradient(top, #FFFFFF, #c2c2c2);
-            background-image: -moz-linear-gradient(top, #FFFFFF, #c2c2c2);
-            background-image: -ms-linear-gradient(top, #FFFFFF, #c2c2c2);
-            background-image: -o-linear-gradient(top, #FFFFFF, #c2c2c2);
-            background-image: linear-gradient(to bottom, #FFFFFF, #c2c2c2);
-            filter: progid:DXImageTransform.Microsoft.gradient(GradientType=0, startColorstr=#FFFFFF, endColorstr=#c2c2c2);
-        }
-
-
-    </style>
 </head>
 <body>
 <div class="blended_grid">
@@ -268,7 +178,7 @@ $contents = Category::get_all();
                             ?>"/>
                     </p>
 
-                    <p style="float: left; text-align: center; width: 300px;"
+                    <p style="float: left; text-align: center; width: 300px;margin-top: 80px;"
                        id="buttonlist">
                         <input class="center_button hvr-fade" type="submit" name="submit"
                                size="10" value="登録"/>
@@ -299,44 +209,25 @@ $contents = Category::get_all();
                 <?php
                 $header = [
                     "コード" => 80,
-                    "大分類名" => 300,
+                    "大分類名" => 500,
                     "選択" => 50,
                     "削除" => 70
                 ];
 
-                echo '<table id="myTable" style="table-layout:fixed;border:0;padding:0;border-radius:5px;" class="search_table tablesorter">';
-                echo '<thead><tr>';
-                foreach ($header as $name => $width)
-                    echo '<th width="' . $width . '">' . $name . '</th>';
-                echo '</tr></thead><tbody>';
+                $prop = [
+                    'chrID'         =>'center',
+                    'chrName'   =>'center',
+                ];
 
+                get_list($header, $contents, "chrID", $prop, "800px") ;
 
-                foreach ((array)$contents as $row) {
-                    echo '<tr class="not_header" id="'.$row->chrID.'">';
-//                    echo '<tr class="not_header">';
-                    echo '<td width="100px;">' . $row->chrID . '</td>';
-                    echo '<td width="152px;">' . $row->chrName . '</td>';
-                    echo '<td style="width:52px;text-align:center;"><input type="radio" onclick="javascript: submit()" name="targetID" id="targetID" value="' . $row->chrID . '"/></td>';
-                    echo '<td style="width:65px;padding:0 0 0 26px;"><button onClick="if(!confirm(\'削除しますか？\')){return false;}"  class="center_button hvr-fade delete_button" style="width:65px; height:30px; margin:0;padding:0;font-weight:normal;" type="submit" name="delete" value="' . $row->chrID . '">削除</button></td>';
-//                    echo "<td style="width:70px;padding:2px;"><input class="center_button hvr-fade delete_button" style="width:65px; height:25px; margin:0;padding:0;font-weight:normal;" type="submit" name="' . $row->chrID . '" value="削除"/></td>';
-                    echo '</tr>';
-                }
-                echo '</tbody></table>';
-
-                $_SESSION["sheet"] = serialize($contents);
-                array_pop($header);
-                array_pop($header);
-                $_SESSION["sheet_header"] = array_keys($header);
                 ?>
                 <input type="submit" name="target" style="display: none"/>
             </form>
         </div>
     </div>
     <!-- ********************* リストの作成  終了　********************** -->
-    <div class="pageFooter">
-        <h4 style="color: #ffffff; text-align: center; padding: 4px 0 0 0;">CopyRight
-            2015 POSCO Co.Ltd All Rights Reserved</h4>
-    </div>
+    <? include('./html_parts/footer.html'); ?>
 </div>
 </div>
 <!-- ********************  入力規則　開始      *********************** -->

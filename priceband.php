@@ -1,13 +1,5 @@
 <?php
-require_once './utils/password.php';
-require_once './utils/connect.php';
-require_once './mapping/priceband_class.php';
-require_once './mapping/staff_class.php';
-require_once './mapping/category_class.php';
-require_once './utils/html_parts_generator.php';
-require_once './utils/helper.php';
-require_once './mapping/menu_class.php';
-
+require_once 'helper.php';
 
 session_start();
 session_check();
@@ -15,76 +7,72 @@ global $errorMessage;
 global $successMessage;
 $errorMessage = "";
 $successMessage = "";
-$targetGroup = Priceband::get_one_empty_priceband();;
+$targetPriceband = new Priceband;
 
 // ログイン状態チェック
 if (!isset($_SESSION['staff']))
     header("Location: Login.php");
 
-// 今ログインしている担当をセッションから取り出す、オブジェクトに一旦保存
 $staff = unserialize($_SESSION["staff"]);
 
-// リストを表示ため、全マスタを一回取り出す
-$contents = Priceband::get_all_priceband();
-
-//// 大分類のIDを取り出す
-//$catids = Category::get_distinct_category_chrID();
+$contents = Priceband::get_all();
 
 // 新規ボタンの処理
 if (isset($_POST['newID'])) {
-    $targetGroup = Priceband::get_new_priceband();
+    $targetPriceband = Priceband::get_new_priceband();
     unset($_POST['newID']);
 }
 
 // リスト内ラジオボタンの処理
 if (isset($_POST["targetID"])) {
 
-    $targetGroup = Priceband::get_one_priceband($_POST["targetID"]);
+    $targetPriceband = Priceband::find($_POST["targetID"]);
 
     // 選択を解除
     unset($_POST["target"]);
-    $contents = Priceband::get_all_priceband();
+    $contents = Priceband::get_all();
 }
 
-// 削除ボタン処理
-for ($i = 0; $i <= 99; $i++) {
-    $two_digits = str_pad($i, 2, '0', STR_PAD_LEFT);
-    if (isset($_POST[$two_digits])) {
-        if (Priceband::delete_one_priceband($two_digits)) {
-            $contents = Priceband::get_all_priceband();
-            $successMessage = "削除しました。";
-        } else {
-            $errorMessage = "削除失敗しました。";
-        }
-        break;
+
+if (isset($_POST['delete'])) {
+    if (Priceband::delete($_POST['delete'])) {
+        $contents = Priceband::get_all();
+        $successMessage = "削除しました。";
+    } else {
+        $errorMessage = "削除失敗しました。";
     }
 }
 
 // 　登録処理
 if (isset($_POST["submit"])) {
-    if (Priceband::insert_one_priceband($_POST['chrID'],
-        $_POST['chrName'],
-        $_POST['intUnder_Bound'],
-        $_POST['intUpper_Bound'])
+    if (Priceband::insert_values(
+        [
+            $_POST['chrID'],
+            $_POST['chrName'],
+            $_POST['intUnder_Bound'],
+            $_POST['intUpper_Bound']
+        ])
     ) {
         $successMessage = "追加しました。";
     } else {
-        // 更新処理開始
-            if (Priceband::update_one_priceband($_POST['chrID'],
+        if (Priceband::update_to_columns(
+            [
+                $_POST['chrID'],
                 $_POST['chrName'],
                 $_POST['intUnder_Bound'],
-                $_POST['intUpper_Bound'])
-            ) {
-                $successMessage = "更新しました。";
-            };
+                $_POST['intUpper_Bound']
+            ])
+        ) {
+            $successMessage = "更新しました。";
+        };
     }
 
     // 再度リストを更新
-    $contents = Priceband::get_all_priceband();
+    $contents = Priceband::get_all();
     $_POST["targetID"] = $chrID;
 }
 
-$contents = Priceband::get_all_priceband();
+$contents = Priceband::get_all();
 ?>
 
 <!DOCTYPE html>
@@ -100,8 +88,6 @@ $contents = Priceband::get_all_priceband();
                 $("input[name=targetID][value=" + chrID + "]").attr('checked', 'checked');
                 $("#list").submit();
             });
-
-
 
             $('#myTable').DataTable({
                 "language": {
@@ -126,7 +112,6 @@ $contents = Priceband::get_all_priceband();
                 ]
             });
 
-
             $('#main-menu').smartmenus();
             jQuery("#user_add_form").validationEngine();
             $("#user_add_form").bind("jqv.field.result", function (event, field, errorFound, prompText) {
@@ -147,85 +132,6 @@ $contents = Priceband::get_all_priceband();
     </script>
     <title>POSCO</title>
     <meta name="description" content="POSCO">
-    <style type="text/css">
-        * {
-            font-family: Verdana;
-        }
-
-        input {
-            border: 1px solid #000000;
-        }
-
-        input[type="text"], input[type="password"], select {
-            padding: 0 0 0 5px;
-            font-size: 14px;
-        }
-
-        input[disable="disable"] {
-            font-size: 14px;
-            padding: 0 0 0 5px;
-        }
-
-        select {
-            float: left;
-            border: 1px solid #555555;
-            margin: 0 0 0px 18px;
-            width: 199px;
-            font-size: 14px;
-            background: #faffbd;
-        }
-
-        #user_list {
-            width: 800px;
-            margin: 0 auto;
-            clear: both;
-        }
-
-        #buttonlist {
-            margin: 10px 0;
-        }
-
-        p.list {
-            width: 700px;
-            height: 37px;
-            color: #000000;
-        }
-
-        p.list input[type="text"], input[type="password"], select {
-            float: left;
-            height: 35px;
-            border: 1px solid #555555;
-            background: #faffbd;
-            transition: border 0.3s;
-        }
-
-        p.list input[type="text"]:focus, input[type="password"]:focus, select:focus {
-            background: #ffffff;
-            border-bottom: solid 1px #FDAB07;
-        }
-
-        label.list {
-            display: block;
-            float: left;
-            margin: 10px 0 5px 0;
-            height: 20px;
-            width: 150px;
-            text-align: right;
-            font-size: 14px;
-        }
-
-        input.delete_button {
-            background-image: -webkit-gradient(linear, left top, left bottom, from(#FFFFFF), to(#c2c2c2));
-            background-image: -webkit-linear-gradient(top, #FFFFFF, #c2c2c2);
-            background-image: -moz-linear-gradient(top, #FFFFFF, #c2c2c2);
-            background-image: -ms-linear-gradient(top, #FFFFFF, #c2c2c2);
-            background-image: -o-linear-gradient(top, #FFFFFF, #c2c2c2);
-            background-image: linear-gradient(to bottom, #FFFFFF, #c2c2c2);
-            filter: progid:DXImageTransform.Microsoft.gradient(GradientType=0, startColorstr=#FFFFFF, endColorstr=#c2c2c2);
-        }
-
-
-    </style>
 </head>
 <body>
 <div class="blended_grid">
@@ -246,7 +152,8 @@ $contents = Priceband::get_all_priceband();
                         <legend>価格帯マスタ</legend>
                     </fieldset>
                     <a class="center_button hvr-fade" style="margin:0 auto;float:right;width:10px;" id="right-menu"
-                    		href="#sidr">入力説明表示／非表示 <i class="fa fa-info-circle"></i></a>
+                       href="#sidr">入力説明表示／非表示 <i class="fa fa-info-circle"></i></a>
+
                     <p class="list">
                         <label class="list">コード</label>
                         <input
@@ -255,11 +162,11 @@ $contents = Priceband::get_all_priceband();
                             style="width: 290px; margin: 0 0 0 18px;" name="chrID"
                             type="text" size="10" placeholder="00"
                             value='<?php
-                            echo $targetGroup->chrID;
+                            echo $targetPriceband->chrID;
                             ?>'/>
                         <input class="newID hvr-fade"
-                                         style="width: 100px; height: 37px; margin: 0;" type="submit"
-                                         name="newID" id="newID" size="10" value="新規"/>
+                               style="width: 100px; height: 37px; margin: 0;" type="submit"
+                               name="newID" id="newID" size="10" value="新規"/>
                     </p>
 
                     <p class="list">
@@ -268,7 +175,7 @@ $contents = Priceband::get_all_priceband();
                             class="validate[required,maxSize[20]] text-input"
                             data-prompt-position="topLeft:140" name="chrName"
                             value="<?php
-                            echo $targetGroup->chrName;
+                            echo $targetPriceband->chrName;
                             ?>"/>
                     </p>
 
@@ -278,7 +185,7 @@ $contents = Priceband::get_all_priceband();
                             class="intUnder_Bound validate[required,onlyNumberSp,custom[required_3_digits]] text-input"
                             data-prompt-position="topLeft:140" name="intUnder_Bound"
                             value="<?php
-                            echo $targetGroup->intUnder_Bound;
+                            echo $targetPriceband->intUnder_Bound;
                             ?>"/>
                     </p>
 
@@ -288,7 +195,7 @@ $contents = Priceband::get_all_priceband();
                             class="intUpper_Bound validate[required,onlyNumberSp,custom[required_3_digits]] text-input"
                             data-prompt-position="topLeft:140" name="intUpper_Bound"
                             value="<?php
-                            echo $targetGroup->intUpper_Bound;
+                            echo $targetPriceband->intUpper_Bound;
                             ?>"/>
                     </p>
 
@@ -296,8 +203,10 @@ $contents = Priceband::get_all_priceband();
                        id="buttonlist">
                         <input class="center_button hvr-fade" type="submit" name="submit"
                                size="10" value="登録"/>
-                        <a class="center_button hvr-fade" href="./priceband.php" style="display: block; float:left;text-decoration: none; width: 88px; margin: 30px 5px; font-size: 14px; padding: 12px 0 12px 0;">クリア</a>
-                        <a class="center_button hvr-fade" href="./index.php" style="display: block; float:left;text-decoration: none; width: 88px; margin: 30px 5px; font-size: 14px; padding: 12px 0 12px 0;">戻る</a>
+                        <a class="center_button hvr-fade" href="./priceband.php"
+                           style="display: block; float:left;text-decoration: none; width: 88px; margin: 30px 5px; font-size: 14px; padding: 12px 0 12px 0;">クリア</a>
+                        <a class="center_button hvr-fade" href="./index.php"
+                           style="display: block; float:left;text-decoration: none; width: 88px; margin: 30px 5px; font-size: 14px; padding: 12px 0 12px 0;">戻る</a>
                     </p>
 
                     <div
@@ -328,41 +237,21 @@ $contents = Priceband::get_all_priceband();
                     "選択" => 52,
                     "削除" => 70
                 ];
+                $prop = [
+                    'chrID' => 'center',
+                    'chrName' => 'left',
+                    'intUnder_Bound' => 'right',
+                    'intUpper_Bound' => 'right',
+                ];
+                get_list($header, $contents, "chrID", $prop, "900px");
 
-                echo '<table id="myTable" style="table-layout:fixed;border:0;padding:0;border-radius:5px;" class="search_table tablesorter">';
-                echo '<thead><tr>';
-                foreach ($header as $name => $width)
-                    echo '<th width="' . $width . '">' . $name . '</th>';
-                echo '</tr></thead><tbody>';
-
-
-                foreach ((array)$contents as $row) {
-                    echo '<tr class="not_header" id="' . $row->chrID . '">';
-                    echo '<td width="100px;">' . $row->chrID . '</td>';
-                    echo '<td width="152px;">' . $row->chrName . '</td>';
-                    echo '<td width="120px;" style="text-align:right;">' . $row->intUnder_Bound . '</td>';
-                    echo '<td width="120px;" style="text-align:right;">' . $row->intUpper_Bound . '</td>';
-                    echo '<td style="width:52px;text-align:center;"><input type="radio" onclick="javascript: submit()" name="targetID" id="targetID" value="' . $row->chrID . '"/></td>';
-                    echo '<td style="width:70px;padding:2px;"><input class="center_button hvr-fade delete_button" style="width:65px; height:25px; margin:0;padding:0;font-weight:normal;" type="submit" name="' . $row->chrID . '" value="削除"/></td>';
-                    echo '</tr>';
-                }
-                echo '</tbody></table>';
-
-                $_SESSION["sheet"] = serialize($contents);
-                array_pop($header);
-                array_pop($header);
-                $_SESSION["sheet_header"] = array_keys($header);
                 ?>
                 <input type="submit" name="target" style="display: none"/>
             </form>
         </div>
     </div>
     <!-- ********************* リストの作成  終了　********************** -->
-    <div class="pageFooter">
-        <h4 style="color: #ffffff; text-align: center; padding: 4px 0 0 0;">CopyRight
-            2015 POSCO Co.Ltd All Rights Reserved</h4>
-    </div>
-</div>
+    <? include('./html_parts/footer.html'); ?>
 </div>
 <!-- ********************  入力規則　開始      *********************** -->
 <div id="sidr-right">

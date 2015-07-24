@@ -93,6 +93,7 @@ $i = 1;
 // 列位置
 $alphabet = range('A', 'T');
 
+$header_count = count($header);
 
 foreach($header as $h) {
 
@@ -111,9 +112,7 @@ foreach($instances as $in_row) {
 
 	foreach(get_object_vars($in_row) as $prop) {
 
-		// NULLなら飛ばす
-//		if ($prop == NULL) {$c++; continue;};
-
+        if($c >= $header_count) break;
 		//　値を挿入
 		$objPHPExcel -> setActiveSheetIndex(0)
                     -> setCellValueExplicitByColumnAndRow($c, $i, $prop, PHPExcel_Cell_DataType::TYPE_STRING);

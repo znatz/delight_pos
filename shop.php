@@ -1,12 +1,5 @@
 <?php
-require_once './utils/password.php';
-require_once './utils/connect.php';
-require_once './mapping/shop_class.php';
-require_once './mapping/staff_class.php';
-require_once './utils/html_parts_generator.php';
-require_once './utils/helper.php';
-require_once './mapping/menu_class.php';
-
+require_once 'helper.php';
 
 session_start();
 session_check();
@@ -14,19 +7,16 @@ global $errorMessage;
 global $successMessage;
 $errorMessage = "";
 $successMessage = "";
-$targetShop = Shop::get_one_empty_shop();;
+$targetShop = new Shop;
 
 // ログイン状態チェック
 if (!isset($_SESSION['staff']))
     header("Location: Login.php");
 
-// 今ログインしている担当をセッションから取り出す、オブジェクトに一旦保存
 $staff = unserialize($_SESSION["staff"]);
 
-// リストを表示ため、全店舗データを一回取り出す
-$contents = Shop::get_all_shop();
+$contents = Shop::get_all();
 
-// 新規ボタンの処理
 if (isset($_POST['newID'])) {
     $targetShop = Shop::get_new_shop();
     unset($_POST['newID']);
@@ -34,84 +24,82 @@ if (isset($_POST['newID'])) {
 
 // リスト内ラジオボタンの処理
 if (isset($_POST["targetID"])) {
+    $targetShop = Shop::find($_POST["targetID"]);
+    $post = $targetShop->chrPost;
+    $address = $targetShop->chrAddress;
 
-    $targetShop = Shop::get_one_shop($_POST["targetID"]);
-    $post = $targetShop ->chrPost;
-    $address = $targetShop ->chrAddress;
-
-    // 選択を解除
     unset($_POST["target"]);
-    $contents = Shop::get_all_shop();
+    $contents = Shop::get_all();
 }
 
 // 削除ボタン処理
-for ($i = 0; $i <= 99; $i++) {
-    $two_digits = str_pad($i, 2, '0', STR_PAD_LEFT);
-    if (isset($_POST[$two_digits])) {
-        if (Shop::delete_one_shop($two_digits)) {
-            $contents = Shop::get_all_shop();
-            $successMessage = "削除しました。";
-        } else {
-            $errorMessage = "削除が失敗しました。";
-        }
-        break;
+if (isset($_POST['delete'])) {
+    if (Shop::delete($_POST['delete'])) {
+        $contents = Shop::get_all();
+        $successMessage = "削除しました。";
+    } else {
+        $errorMessage = "削除失敗しました。";
     }
 }
 
 // 　登録処理
 if (isset($_POST["submit"])) {
-    if (Shop::insert_one_shop($_POST['chrID'],
-        $_POST['chrName'],
-        $_POST['chrPost'],
-        $_POST['chrAddress'],
-        $_POST['chrAddressNo'],
-        $_POST['chrTel'],
-        $_POST['chrFax'],
-        $_POST['intDisplayOrder'])
+    if (Shop::insert_values(
+        [
+            $_POST['chrID'],
+            $_POST['chrName'],
+            $_POST['chrPost'],
+            $_POST['chrAddress'],
+            $_POST['chrAddressNo'],
+            $_POST['chrTel'],
+            $_POST['chrFax'],
+            $_POST['intDisplayOrder']
+        ])
     ) {
         $successMessage = "追加しました。";
     } else {
         // 更新処理開始
-        if (mysql_errno() == 1062) {
-            if (Shop::update_one_shop($_POST['chrID'],
+        if (Shop::update_to_columns(
+            [
+                $_POST['chrID'],
                 $_POST['chrName'],
                 $_POST['chrPost'],
                 $_POST['chrAddress'],
                 $_POST['chrAddressNo'],
                 $_POST['chrTel'],
                 $_POST['chrFax'],
-                $_POST['intDisplayOrder'])
-            ) {
-                $successMessage = "更新しました。";
-            };
-        }
+                $_POST['intDisplayOrder']
+            ])
+        ) {
+            $successMessage = "更新しました。";
+        };
     }
 
     // 再度リストを更新
-    $contents = Shop::get_all_shop();
+    $contents = Shop::get_all();
     $_POST["targetID"] = $chrID;
 }
 
-$contents = Shop::get_all_shop();
+$contents = Shop::get_all();
 
 // 検索ボタンの処理
 if (isset($_POST['SearchPost'])) {
     $targetShop = new Shop($_POST['chrID'],
-                            $_POST['chrName'],
-                            $_POST['chrPost'],
-                            $_POST['chrAddress'],
-                            $_POST['chrAddressNo'],
-                            $_POST['chrTel'],
-                            $_POST['chrFax'],
-                            $_POST['intDisplayOrder']);
+        $_POST['chrName'],
+        $_POST['chrPost'],
+        $_POST['chrAddress'],
+        $_POST['chrAddressNo'],
+        $_POST['chrTel'],
+        $_POST['chrFax'],
+        $_POST['intDisplayOrder']);
     $post = $_POST["chrPost"];
     $connection = new Connection();
-    $query = "select * from post Where chrID='" . $post ."';";
+    $query = "select * from post Where chrID='" . $post . "';";
     $result = $connection->result($query) or die("SQL Error 1: " . mysql_error());
     $rowCount = mysql_num_rows($result);
     if ($rowCount > 0) {
-	$row = mysql_fetch_array($result, MYSQL_ASSOC);
-	$address = $row['chrPrefecture'] . $row['chrAddress'];
+        $row = mysql_fetch_array($result, MYSQL_ASSOC);
+        $address = $row['chrPrefecture'] . $row['chrAddress'];
     } else {
     }
     $connection->close();
@@ -174,98 +162,11 @@ if (isset($_POST['SearchPost'])) {
                 side: 'right'
             });
 
-            $("#jMenu").jMenu({
-                ulWidth: 'auto',
-                effects: {
-                    effectSpeedOpen: 300,
-                    effectTypeClose: 'slide'
-                },
-                animatedText: false,
-                openClick: true
-            });
-
 
         });
     </script>
     <title>POSCO</title>
     <meta name="description" content="POSCO">
-    <style type="text/css">
-        * {
-            font-family: Verdana;
-        }
-
-        input {
-            border: 1px solid #000000;
-        }
-
-        input[type="text"], input[type="password"], select {
-            padding: 0 0 0 5px;
-            font-size: 14px;
-        }
-
-        input[disable="disable"] {
-            font-size: 14px;
-            padding: 0 0 0 5px;
-        }
-
-        select {
-            float: left;
-            border: 1px solid #555555;
-            margin: 0 0 0px 18px;
-            width: 199px;
-            font-size: 14px;
-            background: #faffbd;
-        }
-
-        #user_list {
-            clear: both;
-        }
-
-        #buttonlist {
-            margin: 10px 0;
-        }
-
-        p.list {
-            width: 700px;
-            height: 37px;
-            color: #000000;
-        }
-
-        p.list input[type="text"], input[type="password"], select {
-            float: left;
-            height: 35px;
-            border: 1px solid #555555;
-            background: #faffbd;
-            transition: border 0.3s;
-        }
-
-        p.list input[type="text"]:focus, input[type="password"]:focus, select:focus {
-            background: #ffffff;
-            border-bottom: solid 1px #FDAB07;
-        }
-
-        label.list {
-            display: block;
-            float: left;
-            margin: 10px 0 5px 0;
-            height: 20px;
-            width: 150px;
-            text-align: right;
-            font-size: 14px;
-        }
-
-        input.delete_button {
-            background-image: -webkit-gradient(linear, left top, left bottom, from(#FFFFFF), to(#c2c2c2));
-            background-image: -webkit-linear-gradient(top, #FFFFFF, #c2c2c2);
-            background-image: -moz-linear-gradient(top, #FFFFFF, #c2c2c2);
-            background-image: -ms-linear-gradient(top, #FFFFFF, #c2c2c2);
-            background-image: -o-linear-gradient(top, #FFFFFF, #c2c2c2);
-            background-image: linear-gradient(to bottom, #FFFFFF, #c2c2c2);
-            filter: progid:DXImageTransform.Microsoft.gradient(GradientType=0, startColorstr=#FFFFFF, endColorstr=#c2c2c2);
-        }
-
-
-    </style>
 </head>
 <body>
 <div class="blended_grid">
@@ -299,12 +200,12 @@ if (isset($_POST['SearchPost'])) {
                         <input
                             tabindex="2"
                             class="newID hvr-fade"
-                                         style="width: 100px; height: 37px; margin: 0;" type="submit"
-                                         name="newID" id="newID" size="10" value="新規"/>
+                            style="width: 100px; height: 37px; margin: 0;" type="submit"
+                            name="newID" id="newID" size="10" value="新規"/>
                         <a
                             tabindex="11"
                             class="center_button hvr-fade" style="margin:0 auto;float:right;width:10px;" id="right-menu"
-                           href="#sidr">入力説明表示／非表示 <i class="fa fa-info-circle"></i></a>
+                            href="#sidr">入力説明表示／非表示 <i class="fa fa-info-circle"></i></a>
                     </p>
 
                     <p class="list">
@@ -318,6 +219,7 @@ if (isset($_POST['SearchPost'])) {
                             echo $targetShop->chrName;
                             ?>"/>
                     </p>
+
                     <p class="list">
                         <label class="list">郵便番号</label>
                         <input
@@ -328,12 +230,13 @@ if (isset($_POST['SearchPost'])) {
                             value="<?php
                             echo $post;
                             ?>"/>
-			            <input
+                        <input
                             tabindex="5"
                             class="newID hvr-fade"
-                                         style="width: 100px; height: 37px; margin: 0;" type="submit"
-                                         name="SearchPost" id="SearchPost" size="10" value="検索"/>
+                            style="width: 100px; height: 37px; margin: 0;" type="submit"
+                            name="SearchPost" id="SearchPost" size="10" value="検索"/>
                     </p>
+
                     <p class="list">
                         <label class="list">住所</label>
                         <input
@@ -345,6 +248,7 @@ if (isset($_POST['SearchPost'])) {
                             echo $address;
                             ?>"/>
                     </p>
+
                     <p class="list">
                         <label class="list">番地</label>
                         <input
@@ -353,9 +257,10 @@ if (isset($_POST['SearchPost'])) {
                             class="validate[maxSize[50]] text-input"
                             data-prompt-position="topLeft:140" name="chrAddressNo"
                             value="<?php
-                            echo $targetShop->chrAddress_No;
+                            echo $targetShop->chrAddressNo;
                             ?>"/>
                     </p>
+
                     <p class="list">
                         <label class="list">電話番号</label>
                         <input
@@ -367,6 +272,7 @@ if (isset($_POST['SearchPost'])) {
                             echo $targetShop->chrTel;
                             ?>"/>
                     </p>
+
                     <p class="list">
                         <label class="list">FAX番号</label>
                         <input
@@ -378,6 +284,7 @@ if (isset($_POST['SearchPost'])) {
                             echo $targetShop->chrFax;
                             ?>"/>
                     </p>
+
                     <p class="list">
                         <label class="list">表示順</label>
                         <input
@@ -387,7 +294,7 @@ if (isset($_POST['SearchPost'])) {
                             class="chrCategory_ID validate[onlyNumberSp,maxSize[2]]"
                             data-prompt-position="topLeft:140" name="intDisplayOrder"
                             value="<?php
-                            echo $targetShop->intDisplay_Order;
+                            echo $targetShop->intDisplayOrder;
                             ?>"/>
                     </p>
 
@@ -395,8 +302,10 @@ if (isset($_POST['SearchPost'])) {
                        id="buttonlist">
                         <input class="center_button hvr-fade" type="submit" name="submit"
                                size="10" value="登録"/>
-                        <a class="center_button hvr-fade" href="./shop.php" style="display: block; float:left;text-decoration: none; width: 88px; margin: 30px 5px; font-size: 14px; padding: 12px 0 12px 0;">クリア</a>
-                        <a class="center_button hvr-fade" href="./index.php" style="display: block; float:left;text-decoration: none; width: 88px; margin: 30px 5px; font-size: 14px; padding: 12px 0 12px 0;">戻る</a>
+                        <a class="center_button hvr-fade" href="./shop.php"
+                           style="display: block; float:left;text-decoration: none; width: 88px; margin: 30px 5px; font-size: 14px; padding: 12px 0 12px 0;">クリア</a>
+                        <a class="center_button hvr-fade" href="./index.php"
+                           style="display: block; float:left;text-decoration: none; width: 88px; margin: 30px 5px; font-size: 14px; padding: 12px 0 12px 0;">戻る</a>
                     </p>
 
                     <div
@@ -411,16 +320,15 @@ if (isset($_POST['SearchPost'])) {
                     </div>
                 </form>
             </div>
-            <form action=""></form>
         </div>
         <!-- ********************* フォームの作成 終了　**********************	-->
 
 
         <!-- ********************* リストの作成 開始　**********************	-->
-        <div id="user_list" style="overflow:auto !important;">
+        <div id="user_list" style="overflow:auto !important; width:1000px !important;">
             <form method="post" id="list" action="">
                 <?php
-                 $header = [
+                $header = [
                     "コード" => 80,
                     "店舗名" => 300,
                     "郵便番号" => 80,
@@ -432,34 +340,18 @@ if (isset($_POST['SearchPost'])) {
                     "選択" => 50,
                     "削除" => 70
                 ];
+                $prop = [
+                    'chrID' => 'center',
+                    'chrName' => 'left',
+                    'chrPost' => 'right',
+                    'chrAddress' => 'right',
+                    'chrAddressNo' => 'right',
+                    'chrTel' => 'right',
+                    'chrFax' => 'right',
+                    'intDisplayOrder' => 'right',
+                ];
+                get_list($header, $contents, "chrID", $prop, "1200px");
 
-                echo '<table id="myTable" style="table-layout:fixed;border:0;margin:0 auto; position:relative;padding:0;border-radius:5px;width:700px;" class="search_table tablesorter">';
-                echo '<thead><tr>';
-                foreach ($header as $name => $width)
-                    echo '<th width="' . $width . '">' . $name . '</th>';
-                echo '</tr></thead><tbody>';
-
-
-                foreach ($contents as $row) {
-                    echo '<tr class="not_header" id="' . $row->chrID . '">';
-                    echo '<td width="100px;">' . $row->chrID . '</td>';
-                    echo '<td width="100px;">' . $row->chrName . '</td>';
-                    echo '<td width="100px;" style="text-align:center;">' . $row->chrPost . '</td>';
-                    echo '<td width="100px;">' . $row->chrAddress . '</td>';
-                    echo '<td width="100px;">' . $row->chrAddress_No . '</td>';
-                    echo '<td width="100px;" style="text-align:center;">' . $row->chrTel . '</td>';
-                    echo '<td width="100px;" style="text-align:center;">' . $row->chrFax . '</td>';
-                    echo '<td width="100px;" style="text-align:center;">' . $row->intDisplay_Order . '</td>';
-                    echo '<td style="width:52px;text-align:center;"><input type="radio" onclick="javascript: submit()" name="targetID" id="targetID" value="' . $row->chrID . '"/></td>';
-                    echo '<td style="width:70px;padding:2px;"><input class="center_button hvr-fade delete_button" style="width:65px; height:25px; margin:0;padding:0;font-weight:normal;" type="submit" name="' . $row->chrID . '" value="削除"/></td>';
-                    echo '</tr>';
-                }
-                echo '</tbody></table>';
-
-                $_SESSION["sheet"] = serialize($contents);
-                array_pop($header);
-                array_pop($header);
-                $_SESSION["sheet_header"] = array_keys($header);
                 ?>
                 <input type="submit" name="target" style="display: none"/>
             </form>

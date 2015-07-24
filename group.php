@@ -1,13 +1,5 @@
 <?php
-require_once './utils/password.php';
-require_once './utils/connect.php';
-require_once './mapping/group_class.php';
-require_once './mapping/staff_class.php';
-require_once './mapping/category_class.php';
-require_once './utils/html_parts_generator.php';
-require_once './utils/helper.php';
-require_once './mapping/menu_class.php';
-
+require_once 'helper.php';
 
 session_start();
 session_check();
@@ -15,19 +7,15 @@ global $errorMessage;
 global $successMessage;
 $errorMessage = "";
 $successMessage = "";
-$targetGroup = Group::get_one_empty_group();;
+$targetGroup = new Group;
 
-// ログイン状態チェック
 if (!isset($_SESSION['staff']))
     header("Location: Login.php");
 
-// 今ログインしている担当をセッションから取り出す、オブジェクトに一旦保存
 $staff = unserialize($_SESSION["staff"]);
 
-// リストを表示ため、全担当データを一回取り出す
-$contents = Group::get_all_group();
+$contents = Group::get_all();
 
-// 大分類のIDを取り出す
 $cats = Category::get_distinct_category_chrID();
 
 // 新規ボタンの処理
@@ -39,50 +27,54 @@ if (isset($_POST['newID'])) {
 // リスト内ラジオボタンの処理
 if (isset($_POST["targetID"])) {
 
-    $targetGroup = Group::get_one_group($_POST["targetID"]);
-
-    // 選択を解除
+    $targetGroup = Group::find($_POST["targetID"]);
     unset($_POST["target"]);
-    $contents = Group::get_all_group();
+    $contents = Group::get_all();
 }
 
 // 削除ボタン処理
-    if (isset($_POST['delete'])) {
-        if (Group::delete_one_group($_POST['delete'])) {
-            $contents = Group::get_all_group();
-            $successMessage = "削除しました。";
-        } else {
-            $errorMessage = "削除失敗しました。";
-        }
+if (isset($_POST['delete'])) {
+    if (Group::delete($_POST['delete'])) {
+        $contents = Group::get_all();
+        $successMessage = "削除しました。";
+    } else {
+        $errorMessage = "削除失敗しました。";
     }
+}
 
 // 　登録処理
 if (isset($_POST["submit"])) {
-    if (Group::insert_one_group($_POST['chrID'],
-        $_POST['chrName'],
-        $_POST['intCost_Rate'],
-        $_POST['chrCategory_ID'],
-        $_POST['intTax_Rate'])
+    if (Group::insert_values(
+        [
+            $_POST['chrID'],
+            $_POST['chrName'],
+            $_POST['intCost_Rate'],
+            $_POST['chrCategory_ID'],
+            $_POST['intTax_Rate']
+        ])
     ) {
         $successMessage = "追加しました。";
     } else {
         // 更新処理開始
-            if (Group::update_one_group($_POST['chrID'],
+        if (Group::update_to_columns(
+            [
+                $_POST['chrID'],
                 $_POST['chrName'],
                 $_POST['intCost_Rate'],
                 $_POST['chrCategory_ID'],
-                $_POST['intTax_Rate'])
-            ) {
-                $successMessage = "更新しました。";
-            };
+                $_POST['intTax_Rate']
+            ])
+        ) {
+            $successMessage = "更新しました。";
+        };
     }
 
     // 再度リストを更新
-    $contents = Group::get_all_group();
+    $contents = Group::get_all();
     $_POST["targetID"] = $chrID;
 }
 
-$contents = Group::get_all_group();
+$contents = Group::get_all();
 ?>
 
 <!DOCTYPE html>
@@ -92,7 +84,7 @@ $contents = Group::get_all_group();
     <script type="text/javascript">
         jQuery(document).ready(function () {
 
-            $("tr").dblclick(function(){
+            $("tr").dblclick(function () {
                 var chrID = $(this).attr("id");
                 console.log(chrID);
                 $("input[name=targetID][value=" + chrID + "]").attr('checked', 'checked');
@@ -141,88 +133,19 @@ $contents = Group::get_all_group();
             });
 
 
-
         });
     </script>
     <title>POSCO</title>
     <meta name="description" content="POSCO">
     <style type="text/css">
-        * {
-            font-family: Verdana;
-        }
-
-        input {
-            border: 1px solid #000000;
-        }
-
-        input[type="text"], input[type="password"], select {
-            padding: 0 0 0 5px;
-            font-size: 14px;
-        }
-
-        input[disable="disable"] {
-            font-size: 14px;
-            padding: 0 0 0 5px;
-        }
 
         select {
-            float: left;
             border: 1px solid #555555;
             margin: 0 0 0px 18px;
             width: 199px;
             font-size: 14px;
             background: #faffbd;
         }
-
-        #user_list {
-            width: 800px;
-            margin: 0 auto;
-            clear: both;
-        }
-
-        #buttonlist {
-            margin: 10px 0;
-        }
-
-        p.list {
-            width: 700px;
-            height: 37px;
-            color: #000000;
-        }
-
-        p.list input[type="text"], input[type="password"], select {
-            float: left;
-            height: 35px;
-            border: 1px solid #555555;
-            background: #faffbd;
-            transition: border 0.3s;
-        }
-
-        p.list input[type="text"]:focus, input[type="password"]:focus, select:focus {
-            background: #ffffff;
-            border-bottom: solid 1px #FDAB07;
-        }
-
-        label.list {
-            display: block;
-            float: left;
-            margin: 10px 0 5px 0;
-            height: 20px;
-            width: 150px;
-            text-align: right;
-            font-size: 14px;
-        }
-
-        button {
-            background-image: -webkit-gradient(linear, left top, left bottom, from(#FFFFFF), to(#c2c2c2));
-            background-image: -webkit-linear-gradient(top, #FFFFFF, #c2c2c2);
-            background-image: -moz-linear-gradient(top, #FFFFFF, #c2c2c2);
-            background-image: -ms-linear-gradient(top, #FFFFFF, #c2c2c2);
-            background-image: -o-linear-gradient(top, #FFFFFF, #c2c2c2);
-            background-image: linear-gradient(to bottom, #FFFFFF, #c2c2c2);
-            filter: progid:DXImageTransform.Microsoft.gradient(GradientType=0, startColorstr=#FFFFFF, endColorstr=#c2c2c2);
-        }
-
 
     </style>
 </head>
@@ -257,12 +180,12 @@ $contents = Group::get_all_group();
                             ?>'/>
                         <input class="newID hvr-fade"
                                tabindex="2"
-                                         style="width: 100px; height: 37px; margin: 0;" type="submit"
-                                         name="newID" id="newID" size="10" value="新規"/>
+                               style="width: 100px; height: 37px; margin: 0;" type="submit"
+                               name="newID" id="newID" size="10" value="新規"/>
                         <a
                             tabindex="12"
                             class="center_button hvr-fade" style="margin:0 auto;float:right;width:10px;" id="right-menu"
-                           href="#sidr">入力説明表示／非表示 <i class="fa fa-info-circle"></i></a>
+                            href="#sidr">入力説明表示／非表示 <i class="fa fa-info-circle"></i></a>
                     </p>
 
                     <p class="list">
@@ -297,7 +220,8 @@ $contents = Group::get_all_group();
                                 style="float:left;height:37px;width:207px;">
                             <option/>
                             <?php foreach ($cats as $c) : ?>
-                                <option <? if ($c->chrID == $targetGroup->chrCategory_ID) echo "selected";?> value="<? echo $c->chrID ?>"><?php echo $c->chrID."  ".$c->chrName; ?></option>
+                                <option <? if ($c->chrID == $targetGroup->chrCategory_ID) echo "selected"; ?>
+                                    value="<? echo $c->chrID ?>"><?php echo $c->chrID . "  " . $c->chrName; ?></option>
                             <?php endforeach; ?>
                         </select>
                     </p>
@@ -311,7 +235,7 @@ $contents = Group::get_all_group();
                             data-prompt-position="topLeft:140" name="intTax_Rate"
                             value="<?
                             echo $targetGroup->intTax_Rate;
-                        ?>"/>
+                            ?>"/>
                     </p>
 
                     <p style="float: left; text-align: center; width: 300px;"
@@ -319,7 +243,7 @@ $contents = Group::get_all_group();
                         <input
                             tabindex="7"
                             class="center_button hvr-fade" type="submit" name="submit"
-                               size="10" value="登録"/>
+                            size="10" value="登録"/>
                         <a
                             tabindex="8"
                             class="center_button hvr-fade" href="./group.php"
@@ -327,19 +251,20 @@ $contents = Group::get_all_group();
                         <a
                             tabindex="9"
                             class="center_button hvr-fade" href="./index.php"
-                                                                      style="display: block; float:left;text-decoration: none; width: 88px; margin: 30px 5px; font-size: 14px; padding: 12px 0 12px 0;">戻る</a>
+                            style="display: block; float:left;text-decoration: none; width: 88px; margin: 30px 5px; font-size: 14px; padding: 12px 0 12px 0;">戻る</a>
                     </p>
 
-                    <div style="float: right; width: -100%; height: 100px; margin: 10px 0; text-align: center; vertical-align: middle;">
+                    <div
+                        style="float: right; width: -100%; height: 100px; margin: 10px 0; text-align: center; vertical-align: middle;">
                         <a
                             tabindex="10"
                             class="center_button hvr-fade" href="../utils/excel_export.php"
-                           style="display: block; text-decoration: none; width: 150px; margin: 30px 5px; font-size: 14px; padding: 12px 0 12px 0;">EXCELへ出力&nbsp;<i
+                            style="display: block; text-decoration: none; width: 150px; margin: 30px 5px; font-size: 14px; padding: 12px 0 12px 0;">EXCELへ出力&nbsp;<i
                                 class="fa fa-file-text-o"></i>&nbsp;</a>
                         <a
                             tabindex="11"
                             class="center_button hvr-fade" href="../utils/csv_export.php"
-                           style="display: block; text-decoration: none; width: 130px; margin: 30px 5px; font-size: 14px; padding: 12px 0 12px 0;">CSVへ出力&nbsp;<i
+                            style="display: block; text-decoration: none; width: 130px; margin: 30px 5px; font-size: 14px; padding: 12px 0 12px 0;">CSVへ出力&nbsp;<i
                                 class="fa fa-file-text-o"></i>&nbsp;</a>
                     </div>
                 </form>
@@ -363,41 +288,23 @@ $contents = Group::get_all_group();
                     "削除" => 70
                 ];
 
-                echo '<table id="myTable" style="border:0;padding:0;border-radius:5px;" class="search_table tablesorter">';
-                echo '<thead><tr>';
-                foreach ($header as $name => $width)
-                    echo '<th width="' . $width . '">' . $name . '</th>';
-                echo '</tr></thead><tbody>';
+                $prop = [
+                    'chrID' => 'center',
+                    'chrName' => 'left',
+                    'intCost_Rate' => 'left',
+                    'chrCategory_ID' => 'left',
+                    'intTax_Rate' => 'left',
+                ];
 
+                get_list($header, $contents, "chrID", $prop, "800px");
 
-                foreach ((array)$contents as $row) {
-                    echo '<tr class="not_header" id="'.$row->chrID.'">';
-                    echo '<td width="100px;">' . $row->chrID . '</td>';
-                    echo '<td width="152px;">' . $row->chrName . '</td>';
-                    echo '<td width="150px;" style="text-align:right;">' . $row->intCost_Rate . '</td>';
-                    echo '<td width="150px;" style="text-align:center;">' . $row->chrCategory_ID . '</td>';
-                    echo '<td width="120px;" style="text-align:right;">' . $row->intTax_Rate . '</td>';
-                    echo '<td style="width:52px;text-align:center;"><input type="radio" onclick="javascript: submit()" name="targetID" id="targetID" value="' . $row->chrID . '"/></td>';
-                    echo '<td style="width:65px;padding:0 0 0 2px;"><button onClick="if(!confirm(\'削除しますか？\')){return false;}"  class="center_button hvr-fade delete_button" style="width:65px; height:30px; margin:0;padding:0;font-weight:normal;" type="submit" name="delete" value="' . $row->chrID . '">削除</button></td>';
-//                    echo '<td style="width:70px;padding:2px;"><input class="center_button hvr-fade delete_button" style="width:65px; height:25px; margin:0;padding:0;font-weight:normal;" type="submit" name="' . $row->chrID . '" value="削除"/></td>';
-                    echo '</tr>';
-                }
-                echo '</tbody></table>';
-
-                $_SESSION["sheet"] = serialize($contents);
-                array_pop($header);
-                array_pop($header);
-                $_SESSION["sheet_header"] = array_keys($header);
                 ?>
                 <input type="submit" name="target" style="display: none"/>
             </form>
         </div>
     </div>
     <!-- ********************* リストの作成  終了　********************** -->
-    <div class="pageFooter">
-        <h4 style="color: #ffffff; text-align: center; padding: 4px 0 0 0;">CopyRight
-            2015 POSCO Co.Ltd All Rights Reserved</h4>
-    </div>
+    <? include('./html_parts/footer.html'); ?>
 </div>
 </div>
 <!-- ********************  入力規則　開始      *********************** -->

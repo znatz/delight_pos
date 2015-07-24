@@ -1,12 +1,5 @@
 <?php
-require_once './utils/password.php';
-require_once './utils/connect.php';
-require_once './mapping/unit_class.php';
-require_once './mapping/staff_class.php';
-require_once './mapping/group_class.php';
-require_once './utils/html_parts_generator.php';
-require_once './utils/helper.php';
-require_once './mapping/menu_class.php';
+require_once 'helper.php';
 
 session_start();
 session_check();
@@ -14,41 +7,32 @@ global $errorMessage;
 global $successMessage;
 $errorMessage = "";
 $successMessage = "";
-$targetUnit = Unit::get_one_empty_unit();;
+$targetUnit = new Unit;
 
 // ログイン状態チェック
 if (!isset($_SESSION['staff']))
     header("Location: Login.php");
-
-// 今ログインしている担当をセッションから取り出す、オブジェクトに一旦保存
 $staff = unserialize($_SESSION["staff"]);
 
-// リストを表示ため、全担当データを一回取り出す
-$contents = Unit::get_all_unit();
+$contents = Unit::get_all();
 
 // 部門IDリストを取得
 $groups = Group::get_distinct_group_chrID();
 
-// 新規ボタンの処理
-/*if (isset($_POST['newID'])) {
-    $targetUnit = Unit::get_new_unit();
-    unset($_POST['newID']);
-}*/
-
 // リスト内ラジオボタンの処理
 if (isset($_POST["targetID"])) {
 
-    $targetUnit = Unit::get_one_unit($_POST["targetID"]);
+    $targetUnit = Unit::find($_POST["targetID"]);
 
     // 選択を解除
     unset($_POST["target"]);
-    $contents = Unit::get_all_unit();
+    $contents = Unit::get_all();
 }
 
 // 削除ボタン処理
 if (isset($_POST['delete'])) {
-    if (Unit::delete_one_unit($_POST['delete'])) {
-        $contents = Unit::get_all_unit();
+    if (Unit::delete($_POST['delete'])) {
+        $contents = Unit::get_all();
         $successMessage = "削除しました。";
     } else {
         $errorMessage = "削除失敗しました。";
@@ -57,37 +41,40 @@ if (isset($_POST['delete'])) {
 
 // 　登録処理
 if (isset($_POST["submit"])) {
-    if (Unit::insert_one_unit($_POST['chrID'],
-        $_POST['chrGroup_ID'],
-        $_POST['chrName'],
-        $_POST['chrShort_Name'],
-        $_POST['intDiscount'],
-        $_POST['intTax_Type'],
-        $_POST['intPoint_Flag'])
+    if (Unit::insert_values(
+        [
+            $_POST['chrID'],
+            $_POST['chrGroup_ID'],
+            $_POST['chrName'],
+            $_POST['chrShort_Name'],
+            $_POST['intDiscount'],
+            $_POST['intTax_Type'],
+            $_POST['intPoint_Flag']
+        ])
     ) {
         $successMessage = "追加しました。";
     } else {
-        // 更新処理開始
-        if (mysql_errno() == 1062) {
-            if (Unit::update_one_unit($_POST['chrID'],
+        if (Unit::update_to_columns(
+            [
+                $_POST['chrID'],
                 $_POST['chrGroup_ID'],
                 $_POST['chrName'],
                 $_POST['chrShort_Name'],
                 $_POST['intDiscount'],
                 $_POST['intTax_Type'],
-                $_POST['intPoint_Flag'])
-            ) {
-                $successMessage = "更新しました。";
-            };
-        }
+                $_POST['intPoint_Flag']
+            ])
+        ) {
+            $successMessage = "更新しました。";
+        };
     }
 
     // 再度リストを更新
-    $contents = Unit::get_all_unit();
+    $contents = Unit::get_all();
     $_POST["targetID"] = $chrID;
 }
 
-$contents = Unit::get_all_unit();
+$contents = Unit::get_all();
 ?>
 
 <!DOCTYPE html>
@@ -144,16 +131,7 @@ $contents = Unit::get_all_unit();
                 name: 'sidr-right',
                 side: 'right'
             });
-            $("#jMenu").jMenu({
-                ulWidth: 'auto',
-                effects: {
-                    effectSpeedOpen: 300,
-                    effectTypeClose: 'slide'
-                },
-                animatedText: false,
-                openClick: true
-            });
-            $("#myTable").tablesorter({
+           $("#myTable").tablesorter({
                 headers: {
                     5: {sorter: false},
                     6: {sorter: false}
@@ -165,74 +143,13 @@ $contents = Unit::get_all_unit();
     <title>POSCO</title>
     <meta name="description" content="POSCO">
     <style type="text/css">
-        * {
-            font-family: Verdana;
-        }
-
-        input {
-            border: 1px solid #000000;
-        }
-
-        input[type="text"], input[type="password"], select {
-            padding: 0 0 0 5px;
-            font-size: 14px;
-        }
-
-        input[disable="disable"] {
-            font-size: 14px;
-            padding: 0 0 0 5px;
-        }
-
         select {
-            float: left;
             border: 1px solid #555555;
             margin: 0 0 0px 18px;
             width: 199px;
             font-size: 14px;
             background: #faffbd;
         }
-
-        #user_list {
-            width: 1000px;
-            margin: 0 auto;
-            clear: both;
-        }
-
-        p.list {
-            width: 700px;
-            height: 37px;
-            color: #000000;
-        }
-
-        p.list input[type="text"], input[type="password"], select {
-            float: left;
-            height: 35px;
-            border: 1px solid #555555;
-            background: #faffbd;
-            transition: border 0.3s;
-        }
-
-        p.list input[type="text"]:focus, input[type="password"]:focus, select:focus {
-            background: #ffffff;
-            border-bottom: solid 1px #FDAB07;
-        }
-
-        label.list {
-            display: block;
-            float: left;
-            margin: 10px 0 5px 50px;
-            height: 20px;
-            width: 150px;
-            text-align: right;
-            font-size: 14px;
-        }
-
-        input.center_button {
-            width: 90px;
-            height: 40px;
-            margin: 30px 5px 30px 5px;
-        }
-
     </style>
 </head>
 <body>
@@ -353,7 +270,7 @@ $contents = Unit::get_all_unit();
                         </select>
                     </p>
 
-            <? include('./html_parts/form_button.html'); ?>
+                    <? include('./html_parts/form_button.html'); ?>
                 </form>
             </div>
             <form action=""></form>
@@ -376,32 +293,18 @@ $contents = Unit::get_all_unit();
                     "選択" => 50,
                     "削除" => 70
                 ];
-                echo '<table id="myTable" style="border:0;padding:0;border-radius:5px;" class="search_table tablesorter">';
-                echo '<thead><tr>';
-                foreach ($header as $name => $width)
-                    echo '<th width="' . $width . 'px">' . $name . '</th>';
-                echo '</thead></tr><tbody>';
 
+                $prop = [
+                    'chrID' => 'center',
+                    'chrGroup_ID' => 'center',
+                    'chrName' => 'center',
+                    'chrShort_Name' => 'center',
+                    'intDiscount' => 'right',
+                    'intTax_Type' => 'center',
+                    'intPoint_Flag' => 'center',
+                ];
 
-                foreach ((array)$contents as $row) {
-                    echo '<tr class="not_header" id="' . $row->chrID . '">';
-                    echo '<td>' . $row->chrID . '</td>';
-                    echo '<td>' . $row->chrGroup_ID . '</td>';
-                    echo '<td>' . $row->chrName . '</td>';
-                    echo '<td>' . $row->chrShort_Name . '</td>';
-                    echo '<td style="text-align: right;">' . $row->intDiscount . '</td>';
-                    echo '<td style="text-align: center;">' . $row->intTax_Type . '</td>';
-                    echo '<td style="text-align:center;">' . $row->intPoint_Flag . '</td>';
-                    echo '<td text-align:center;"><input type="radio" onclick="javascript: submit()" name="targetID" id="targetID" value="' . $row->chrID . '"/></td>';
-                    echo '<td style="padding:0 0 0 2px;"><button onClick="if(!confirm(\'削除しますか？\')){return false;}"  class="center_button hvr-fade delete_button" style="width:65px; height:30px; margin:0;padding:0;font-weight:normal;" type="submit" name="delete" value="' . $row->chrID . '">削除</button></td>';
-                    echo '</tr>';
-                }
-                echo '</tbody></table>';
-
-                $_SESSION["sheet"] = serialize($contents);
-                array_pop($header);
-                array_pop($header);
-                $_SESSION["sheet_header"] = array_keys($header);
+                get_list($header, $contents, "chrID", $prop, "1000px");
                 ?>
                 <input type="submit" name="target" style="display: none"/>
             </form>

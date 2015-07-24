@@ -35,21 +35,6 @@ class Seller extends ZModel
         }
     }
 
-    public static function get_one_empty_seller()
-    {
-        return new Seller("", "", "", "", "", "", "", "", "");
-    }
-
-    public static function get_all_seller()
-    {
-        return parent::get_all();
-    }
-
-    public static function get_all_seller_chrID()
-    {
-        return parent::get_column('chrID');
-    }
-
 
     public static function search_chrID_chrName_by_word($word)
     {
@@ -69,27 +54,6 @@ EOF;
         return $htmlString;
     }
 
-    public static function get_one_seller($chrID)
-    {
-        return parent::find($chrID);
-
-    }
-
-    public static function insert_one_seller()
-    {
-        return parent::insert_values(func_get_args());
-    }
-
-    public static function update_one_seller($id, $name, $shortnm, $pos, $add, $addno, $tel, $fax, $staff)
-    {
-        return parent::update_to_columns(func_get_args());
-    }
-
-    public static function delete_one_seller($chrID)
-    {
-        return parent::delete($chrID);
-
-    }
 
     public static function get_new_seller()
     {
