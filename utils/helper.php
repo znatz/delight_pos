@@ -4,7 +4,7 @@ require_once 'connect.php';
 require_once 'ConstantDb.php';
 
 function __autoload($class_name) {
-    require_once strtolower($class_name).'_class.php';
+    if(strpos($class_name, "Excel") == false ) require_once strtolower($class_name).'_class.php';
 }
 function prefix_ifNotEmpty($prefix, $a)
 {
@@ -38,6 +38,15 @@ function ifNotEmpty($a, $b)
     return $b;
 }
 
+function year_month_day_mix($y, $m, $d)
+{
+    return implode(".", func_get_args());
+}
+
+function year_month_day_separate($ymd) {
+    return explode(".", $ymd);
+}
+
 function get_lastet_number($sorted_ary)
 {
     $i = 1;
@@ -58,6 +67,24 @@ function get_lastet_3_number($sorted_ary)
         $i++;
     }
     return str_pad($i, 3, "0", STR_PAD_LEFT);
+}
+
+function birthday_calculator($y,$m,$d) {
+    if (!$y) return "";
+    $current_y = (int)date('Y');
+    $current_m = (int)date('m');
+    $current_d = (int)date('d');
+    $y         = (int)$y;
+    $m         = (int)$m;
+    $d         = (int)$d;
+
+    $diff_m    = $current_m - $m;
+    $diff_d    = $current_d - $d;
+    $age       = $current_y - $y;
+
+    if($diff_m == 0 & $diff_d == 0) return $age;
+    if ($diff_m == 0) return $age +  $diff_d / abs($diff_d);
+    return $age +  $diff_m / abs($diff_m);
 }
 
 function session_check()
@@ -214,6 +241,37 @@ function update_to_table_columns($table_name, $columns, $values, $id)
     $success = mysqli_errno($connection) > 0 ? false : true;
     return $success;
 }
+function update_to_table_columns_by_column($table_name, $columns, $values, $pk, $id)
+{
+    $connection = mysqli_connect(DB_HOST, DB_USER, DB_PASS, DB_NAME);
+    mysqli_set_charset($connection, "utf8");
+    $query = 'SELECT ' . implode(',', $columns) . ' FROM ' . $table_name;
+    $result = $connection->query($query);
+
+    for ($i = 0; $i < count($values); $i++) {
+        $types[] = $result->fetch_field_direct($i)->type;
+    }
+
+    foreach ($values as $key => $val) {
+        if ($types[$key] == MYSQLI_TYPE_VAR_STRING) $quoted[] = '"' . $val . '"';
+        else $quoted[] = $val;
+    }
+
+    $connection = mysqli_connect(DB_HOST, DB_USER, DB_PASS, DB_NAME);
+    mysqli_set_charset($connection, "utf8");
+    $query = 'UPDATE ' . $table_name . ' SET ';
+    for ($i = 0; $i < count($values); $i++) {
+        $query .= ' `' . $columns[$i] . '`=' . $quoted[$i] . ',';
+    }
+
+    $query = rtrim($query, ',');
+
+    if (!empty($id)) $query .= " WHERE ".$pk."=" . $id;
+    $connection->query($query);
+
+    $success = mysqli_errno($connection) > 0 ? false : true;
+    return $success;
+}
 
 /* WIP*/
 function update_to_table_column($table_name, $column, $val, $pk, $id)
@@ -266,6 +324,9 @@ function insert_to_table($table_name, $values)
     $query .= implode(', ', $quoted);
 
     $query .= ')';
+
+    echo $query;
+
     $connection->query($query);
 
     $success = mysqli_errno($connection) == 0 ? 1 : 0;

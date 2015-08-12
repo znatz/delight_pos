@@ -23,8 +23,8 @@ if(isset($Search)){
 
 $classids = Goods::get_distinct_class_chrID();
 $groups = Group::get_distinct_group_chrID();
-$sellers = Seller::get_all_seller();
-$makers = Maker::get_all_maker();
+$sellers = Seller::get_all();
+$makers = Maker::get_all();
 ?>
 
 <!DOCTYPE html>

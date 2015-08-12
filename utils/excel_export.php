@@ -4,26 +4,11 @@ session_start();
 
 // unserialized　ため必要
 require_once dirname(__FILE__). '/../Classes/PHPExcel.php';
-require_once "menu_class.php";
-require_once "staff_class.php";
-require_once "group_class.php";
-require_once "unit_class.php";
-require_once "receipt_top_class.php";
-require_once "receipt_bottom_class.php";
 
-require_once "category_class.php";
-require_once "goods_class.php";
-require_once "invoice_class.php";
-require_once "maker_class.php";
-require_once "priceband_class.php";
-require_once "salesgoal_class.php";
-require_once "seller_class.php";
-require_once "shop_class.php";
-require_once "telop_class.php";
-require_once 'receipt_top_id_removed.php';
-require_once 'receipt_bottom_id_removed.php';
-require_once 'invoice_id_removed.php';
-
+function my_autoload($class_name) {
+    if(strpos($class_name, "Excel") == false ) require_once strtolower($class_name).'_class.php';
+}
+spl_autoload_register("my_autoload");
 // シートのデーターを取り出す
 $instances = unserialize($_SESSION["sheet"]);
 $header = $_SESSION["sheet_header"];
@@ -72,6 +57,12 @@ switch(get_class($instances[0])) {
         break;
     case "Telop":
         $filename = "テロップマスタ";
+        break;
+    case "Area":
+        $filename = "地区マスタ";
+        break;
+    case "Memberranking":
+        $filename = "分類マスタ";
         break;
 }
 

@@ -57,6 +57,12 @@ class ZModel
     {
         return update_to_table_columns(static::$table, static::$columns, func_get_args()[0], func_get_args()[0][0]);
     }
+    public static function update_to_columns_by_column()
+    {
+        $args = func_get_args();
+        $pk   = array_pop($args);
+        return update_to_table_columns_by_column(static::$table, static::$columns, $args, $pk, $args[0]);
+    }
     public static function update_to_column($column, $value, $pk, $id)
     {
         return update_to_table_column(static::$table, $column, $value, $pk, $id);
