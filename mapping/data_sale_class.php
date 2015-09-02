@@ -178,5 +178,92 @@ class Data_sale extends ZModel
         $result =  get_all_from_table(static::$table, $query);
         return $result;
     }
+/*
+    public static function sum_all_with_month_range_in_shop($sumColumns, $from, $to, $shop_id)
+    {
+        $query = "SELECT T.chrDate, T.chrShop_ID, ";
+        foreach($sumColumns as $column_name) {
+            $query = $query." Sum(T.".$column_name.") AS ".$column_name. ",";
+        }
+        $query = rtrim($query, ",");
+        $query = $query." FROM ( ";
+
+        $query = $query . "SELECT chrDate, chrShop_ID, ";
+
+        foreach($sumColumns as $column_name) {
+            $query = $query." Sum(".$column_name.") AS ".$column_name. ",";
+        }
+        $query = rtrim($query, ",");
+
+        $query = $query. " FROM ".static::$table." WHERE chrDate BETWEEN '".$from."' AND '".$to."'";
+        if($shop_id != '00') $query = $query." AND chrShop_ID IN (".$shop_id.')';
+        $query = $query. " Group By chrDate, chrShop_ID";
+        $query = $query. " ORDER BY chrDate, chrShop_ID";
+
+        $query = $query." ) AS T";
+        $query = $query. " Group By T.chrShop_ID";
+//        $query = $query. " ORDER BY T.chrDate, T.chrShop_ID";
+
+        echo $query;
+        $result =  get_all_from_table(static::$table, $query);
+
+        return $result;
+    }*/
+    public static  function findMonth($year, $month) {
+        $day = new DateTime($year.'-'.$month.'-01');
+        return date_format($day, "Y/m");
+    }
+    public static function sum_all_with_month_range_in_shop($sumColumns, $fromYear, $fromMonth, $toYear, $toMonth, $shop_id)
+    {
+        $result = [];
+        $yearDiff = $toYear     - $fromYear;
+        $monDiff  = $toMonth    - $fromMonth;
+
+        if($toMonth == $fromMonth) $monDiff = 1;
+
+        for( $y = 0; $y <= $yearDiff; $y++) {
+
+
+            $fromYear = $fromYear + $y;
+
+            for ( $m = 0; $m < $monDiff; $m++) {
+
+                $from  = self::findMonth($fromYear,  ($fromMonth + $m));
+                $to     = self::findMonth($fromYear,   ($fromMonth + $m + 1));
+
+                $query = "SELECT Sum(T.chrDate), T.chrShop_ID, ";
+                foreach($sumColumns as $column_name) {
+                    $query = $query." Sum(T.".$column_name.") AS ".$column_name. ",";
+                }
+                $query = rtrim($query, ",");
+                $query = $query." FROM ( ";
+
+                $query = $query . "SELECT chrDate, chrShop_ID, ";
+
+                foreach($sumColumns as $column_name) {
+                    $query = $query." Sum(".$column_name.") AS ".$column_name. ",";
+                }
+                $query = rtrim($query, ",");
+
+                $query = $query. " FROM ".static::$table." WHERE chrDate BETWEEN '".$from."' AND '".$to."'";
+                if($shop_id != '00') $query = $query." AND chrShop_ID IN (".$shop_id.')';
+                $query = $query. " Group By chrDate, chrShop_ID";
+                $query = $query. " ORDER BY chrDate, chrShop_ID";
+
+                $query = $query." ) AS T";
+                $query = $query. " Group By chrShop_ID";
+
+                $tmp   =  get_all_from_table(static::$table, $query);
+                foreach($tmp as $e) {
+                    $e->chrDate = $from;
+                }
+                $result[$from.'-'.$to] =  $tmp;
+
+
+            }
+        }
+
+        return $result;
+    }
 
 }
