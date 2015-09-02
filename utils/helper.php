@@ -464,3 +464,44 @@ function get_all_from_table($table_name, $query)
     $connection->close();
     return $contents;
 }
+
+function get_all_from_table_with_limits($table_name, $query, $i)
+{
+    $connection = mysqli_connect(DB_HOST, DB_USER, DB_PASS, DB_NAME);
+    mysqli_set_charset($connection, "utf8");
+
+    $query = ifNotEmpty($query, "SELECT * FROM " . strtolower($table_name)." LIMIT ". $i);
+
+    echo $query;
+    $table_name = trim($table_name, '`');
+    $table_name = rtrim($table_name, '``');
+    require_once $table_name . '_class.php';
+    $result = mysqli_query($connection, $query);
+    $contents = array();
+
+    if (is_bool($result)) return $result;
+
+    if (mysqli_num_rows($result) == 1) {
+        $row = mysqli_fetch_assoc($result);
+        $keys = array_keys($row);
+        $obj = new $table_name;
+        foreach ($keys as $k) {
+            $obj->$k = $row[$k];
+        }
+        $contents[] = $obj;
+        return $contents;
+    };
+
+    while ($row = mysqli_fetch_array($result, MYSQLI_ASSOC)) {
+
+        $keys = array_keys($row);
+        $obj = new $table_name;
+        foreach ($keys as $k) {
+            $obj->$k = $row[$k];
+        }
+        $contents[] = $obj;
+    }
+
+    $connection->close();
+    return $contents;
+}

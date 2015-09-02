@@ -38,7 +38,7 @@ class Member extends ZModel
         "chrAddress",
         "chrAddress2",
         "chrArea_ID",
-         "chrMemberranking_ID",
+        "chrMemberranking_ID",
         "chrTel",
         "chrMobile",
          "chrBirthday",
