@@ -163,6 +163,46 @@ EOF;
     $_SESSION["sheet_header"] = array_keys($header);
 }
 
+function get_list_without_buttons($header, $contents, $id, $prop, $table_width)
+{
+    echo <<<EOF
+    <form method="post" id="list" action="">
+            <table id="myTable" style="border:0;padding:0;border-radius:5px;width:$table_width;" class="search_table">
+                <thead>
+                    <tr>
+EOF;
+
+    foreach ($header as $name => $width) {
+        echo '<th width="' . $width . '">' . $name . '</th>';
+    }
+
+    echo '</tr></thead><tbody>';
+
+
+    foreach ((array)$contents as $row) {
+        $rowid = $row->$id;
+        echo '<tr class="not_header" id="' . $rowid . '">';
+        foreach ($prop as $p => $align) {
+            echo '<td style="text-align:' . $align . ';">' . $row->$p . '</td>';
+        }
+        echo <<<EOF
+           </tr>
+EOF;
+    }
+
+    echo <<<EOF
+                </tbody>
+            </table>
+        <input type="submit" name="target" style="display: none"/>
+    </form>
+EOF;
+
+    $_SESSION["sheet"] = serialize($contents);
+    array_pop($header);
+    array_pop($header);
+    $_SESSION["sheet_header"] = array_keys($header);
+}
+
 function showCode($Pos)
 {
     $connection = new Connection();
@@ -472,7 +512,6 @@ function get_all_from_table_with_limits($table_name, $query, $i)
 
     $query = ifNotEmpty($query, "SELECT * FROM " . strtolower($table_name)." LIMIT ". $i);
 
-    echo $query;
     $table_name = trim($table_name, '`');
     $table_name = rtrim($table_name, '``');
     require_once $table_name . '_class.php';

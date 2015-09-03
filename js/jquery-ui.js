@@ -3829,10 +3829,10 @@ function Datepicker() {
 		prevText: "Prev", // Display text for previous month link
 		nextText: "Next", // Display text for next month link
 		currentText: "Today", // Display text for current month link
-		monthNames: ["一月","二月","三月","四月","五月","六月",
-			"七月","八月","九月","十月","十一月","十二月"], // Names of months for drop-down and formatting
+		monthNames: ["1月","2月","3月","4月","5月","6月",
+			"7月","8月","9月","10月","11月","12月"], // Names of months for drop-down and formatting
 		//monthNamesShort: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"], // For formatting
-		monthNamesShort: ["一月","二月","三月","四月","五月","六月", "七月","八月","九月","十月","十一月","十二月"], // Names of months for drop-down and formatting
+		monthNamesShort: ["1月","2月","3月","4月","5月","6月", "7月","8月","9月","10月","11月","12月"], // Names of months for drop-down and formatting
 		dayNames: ["日曜日", "月曜日", "火曜日", "水曜日", "木曜日", "金曜日", "土曜日"], // For formatting
 		dayNamesShort: ["日曜", "月曜", "火曜", "水曜", "木曜", "金曜", "土曜"], // For formatting
 		dayNamesMin: ["日", "月", "火", "水", "木", "金", "土"], // For formatting

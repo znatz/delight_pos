@@ -15,31 +15,31 @@ $staff = unserialize($_SESSION["staff"]);
 
 // リストを表示ため、全商品データを一回取り出す
 //$contents = Data_sale::get_all_with_date_range("2015/08/01", "2015/08/31", "");
-$groups     = Group::get_distinct_group_chrID();
-$shops      = Shop::get_distinct_shop_chrID();;
+$groups = Group::get_distinct_group_chrID();
+$shops = Shop::get_distinct_shop_chrID();;
 
-$sumColumns = [ "intCount",
-                "intAmount",
-                "intProfit",
-                "intTax",
-                "intPaymentCount",
-                "intCredit",
-                "intRevenue",
-                "intRemain",
-                "intExchangeCheck",
-                "intServiceTicket",
-                "intReceivable",
-                "intPartialPayment"];
+$sumColumns = ["intCount",
+    "intAmount",
+    "intProfit",
+    "intTax",
+    "intPaymentCount",
+    "intCredit",
+    "intRevenue",
+    "intRemain",
+    "intExchangeCheck",
+    "intServiceTicket",
+    "intReceivable",
+    "intPartialPayment"];
 
-$contents = Data_sale::sum_all_with_date_range_in_shop($sumColumns,"2015/08/01", "2015/08/31", "00");
+$contents = Data_sale::sum_all_with_range_of_date_in_shop($sumColumns, "2015/08/01", "2015/08/31", "00");
 // 検索押された
-if(isset($search)){
+if (isset($search)) {
 //    $contents = Data_sale::sum_all_with_date_range_in_shop($sumColumns, $dateFrom, $dateTo, $searchIn);
-    if(count($_POST["searchIn"]) < 1) {
+    if (count($_POST["searchIn"]) < 1) {
         $errorMessage = "店舗を選択してください。";
     } else {
-    $searchInShops = implode(",", $_POST["searchIn"]);
-    $contents = Data_sale::sum_all_with_date_range_in_shop($sumColumns, $dateFrom, $dateTo, $searchInShops);
+        $searchInShops = implode(",", $_POST["searchIn"]);
+        $contents = Data_sale::sum_all_with_range_of_date_in_shop($sumColumns, $dateFrom, $dateTo, $searchInShops);
     }
 }
 
@@ -53,20 +53,21 @@ if(isset($search)){
     <script type="text/javascript">
         jQuery(document).ready(function () {
 
-            $('.date_cell').each(function() {
+            $('.date_cell').each(function () {
                 var $this = $(this);
                 if ($.trim($this.closest('tr').prev('tr').find('.date_cell').text()) == $this.text()) {
                     $this.hide();
                 }
             });
 
-            var decimalLength = function(){
+            var decimalLength = function () {
                 /* your code here */
-                var value = 0; /* example only */
+                var value = 0;
+                /* example only */
                 return value;
             };
 
-            $('.currency_cell').autoNumeric("init",{
+            $('.currency_cell').autoNumeric("init", {
                 aSep: ',',
                 mDec: decimalLength,
             });
@@ -86,8 +87,8 @@ if(isset($search)){
 
             // Datepicker Setup
             var dateFormat = 'yy/mm/dd';
-            $("#from").datepicker({dateFormat:dateFormat});
-            $("#to").datepicker({dateFormat:dateFormat});
+            $("#from").datepicker({dateFormat: dateFormat});
+            $("#to").datepicker({dateFormat: dateFormat});
 
 
         });
@@ -98,36 +99,48 @@ if(isset($search)){
         p.list {
             width: 900px;
         }
+
         select {
-            float:left;
-            width:289px;
+            float: left;
+            width: 289px;
             margin-bottom: 0;
         }
+
         label.list {
             width: 100px;
         }
+
         .yen-mark {
             background-color: gray;
-            background-image: linear-gradient(transparent 70%, rgba(100,100,100,.5) 50%);
+            background-image: linear-gradient(transparent 70%, rgba(100, 100, 100, .5) 50%);
             background-size: 2px 2px;
-            margin:0 !important; padding-top:10px !important;
-            display:block;
-            height:27px !important;
-            color:white;
-            text-align:center !important;
+            margin: 0 !important;
+            padding-top: 10px !important;
+            display: block;
+            height: 27px !important;
+            color: white;
+            text-align: center !important;
         }
+
         .summing_cell_head {
-            text-align:center
+            text-align: center
         }
+
         .summing_cell_head, .summing_cell {
             background-color: #9acfea;
-            display:<? if($_POST["searchIn"] && count($_POST["searchIn"])==1 && ($searchInShops!= "00")) echo 'none'; ?>
+            display: <? if($_POST["searchIn"] && count($_POST["searchIn"])==1 && ($searchInShops!= "00")) echo 'none'; ?>
         }
+
+        .total_summing {
+            display:table-cell !important;
+        }
+
         .currency_cell {
-            text-align:right
+            text-align: right
         }
+
         .date_cell {
-            text-align:center
+            text-align: center
         }
     </style>
 </head>
@@ -144,7 +157,8 @@ if(isset($search)){
             <!-- ********************* マスタ一覧の作成 開始　**********************	-->
             <div style="clear: both; float: top;">
 
-                <form class="search_form" style="margin: 0 auto; margin-bottom:50px; width: 950px; height: <? echo (130+10*count($shops)).'px'; ?>;"
+                <form class="search_form"
+                      style="margin: 0 auto; margin-bottom:50px; width: 950px; height: <? echo (130 + 10 * count($shops)) . 'px'; ?>;"
                       method="post" id="user_add_form" action="">
                     <fieldset>
                         <legend>日別売上</legend>
@@ -158,7 +172,7 @@ if(isset($search)){
                             class="validate[required,maxSize[20]] text-input"
                             data-prompt-position="topLeft:140" name="dateFrom"
                             value="<?php
-                            echo ifNotEmpty($dateFrom,"");
+                            echo ifNotEmpty($dateFrom, "");
                             ?>"/>
                         <label class="list yen-mark" style="width:27px;">-</label>
                         <input
@@ -167,18 +181,18 @@ if(isset($search)){
                             class="validate[required,maxSize[20]] text-input"
                             data-prompt-position="topLeft:140" name="dateTo"
                             value="<?php
-                            echo ifNotEmpty($dateTo,"");
+                            echo ifNotEmpty($dateTo, "");
                             ?>"/>
                         <label class="list" style="width:80px;">来店店舗</label>
                         <select
                             multiple="multiple"
-                            style="width:241px;height:<? echo (10* count($shops)).'px'; ?>"
+                            style="width:241px;height:<? echo (10 * count($shops)) . 'px'; ?>"
                             tabindex="3"
-                            name="searchIn[]" >
+                            name="searchIn[]">
                             <? foreach ($shops as $s) : ?>
                                 <option
                                     value="<? echo $s[0] ?>"
-                                    <? if($searchIn == $s[0]) echo "selected"; ?>
+                                    <? if ($searchIn == $s[0]) echo "selected"; ?>
                                     ><? echo $s[0] . " " . $s[1]; ?></option>
                             <? endforeach; ?>
                         </select>
@@ -221,87 +235,93 @@ if(isset($search)){
         <div id="user_list" style="overflow:auto !important;width:1000px;">
             <?
             echo '<table style="border:0;padding:0;border-radius:5px;width:1500px" class="search_table"><thead>';
-            $table_header = [   '日付'          => 'chrDate',
-                                '店舗'          => '_chrShop_ID',
-                                '売上数'        => 'intCount',
-                                '売上金額'      => 'intAmount',
-                                '粗利金額'      => 'intProfit',
-                                '消費税'        => 'intTax',
-                                '税込金額'      => '_PaymentWithTax',
-                                '客数'          => 'intPaymentCount',
-                                '現金'          => '_Cash',
-                                'クレジット'    => 'intCredit',
-                                '商品券'        => 'intExchangeCheck',
-                                'サービス券'    => 'intServiceTicket',
-                                '売掛金'        => 'intReceivable',
-                                '掛入金'        => 'intPartialPayment'];
-            foreach($table_header as $td => $dummy) {
-               echo '<th>'.$td.'</th>';
+            $table_header = ['日付' => 'chrDate',
+                '店舗' => '_chrShop_ID',
+                '売上数' => 'intCount',
+                '売上金額' => 'intAmount',
+                '粗利金額' => 'intProfit',
+                '消費税' => 'intTax',
+                '税込金額' => '_PaymentWithTax',
+                '客数' => 'intPaymentCount',
+                '現金' => '_Cash',
+                'クレジット' => 'intCredit',
+                '商品券' => 'intExchangeCheck',
+                'サービス券' => 'intServiceTicket',
+                '売掛金' => 'intReceivable',
+                '掛入金' => 'intPartialPayment'];
+            foreach ($table_header as $td => $dummy) {
+                echo '<th>' . $td . '</th>';
             }
             echo '</thead>';
 
             // Show Warning and Hide Result If No Records Exists
-            if(count($contents) < 1) {
+            if (count($contents) < 1) {
                 echo '<tbody><tr><td colspan="10"><div class="isa_error"><i class="fa fa-times-circle">この期間内データーありません。</i></div></td></tr></tbody>';
                 echo '<tbody hidden="true">';
             } else {
                 echo '<tbody>';
             }
 
-            // Scan Vertically to Calculate Data
-            $runningLine = new Data_sale();
-            $runningLine->chrDate = $contents[0]->chrDate;
+            foreach ((array)$contents as $element) {
 
-            foreach((array)$contents as $element) {
 
-                // Summing Line
-                if($element->chrDate != $runningLine->chrDate) {
-                    foreach ($table_header as $dummy => $val) {
-                        if(isset($runningLine->$val)) {
-                            // Do Not Show Date in Summing Line
-                            if($val != "chrDate") {
-                                echo '<td class="summing_cell currency_cell">' . $runningLine->$val . '</td>';
-                            } else {
-                                echo "<td colspan='2' class='summing_cell_head'>小計</td>";
-                            }
-                        } else {
-                            // Calculate Total Price With Tax
-                            if($val == "_PaymentWithTax") echo '<td class="summing_cell currency_cell">'.($runningLine->intAmount + $runningLine->intTax).'</td>';
-                            // Calculate Cash
-                            if($val == "_Cash") echo '<td class="summing_cell currency_cell">'.($runningLine->intRevenue + $runningLine->intRemain).'</td>';
-                        }
-                    }
-                    // Reset Summing Line Once Summing Finished.
-                    $runningLine = new Data_sale();
-                    $runningLine->chrDate = $element->chrDate;
+                $isTotal    = (is_null($element->chrDate) && is_null($element->chrShopID));
+                $isSubTotal = (!is_null($element->chrDate) && is_null($element->chrShop_ID));
+                $missingShop_ID = is_null($element->chrShop_ID);
+                if(!$missingShop_ID) {
+                    $shop  = Shop::find($element->chrShop_ID);
                 }
 
                 // Normal Line
                 echo '<tr>';
                 foreach ($table_header as $dummy => $val) {
-                    // Sum Revenue and Remain Which are Not Shown
-                    $runningLine->intRevenue += $element->intRevenue;
-                    $runningLine->intRemain  += $element->intRemain;
-                    if(isset($element->$val)) {
-                        // 1 : Sum Columns Which are Not Date
-                        // 2 : Show Date and Currency Cells in Separate Format
-                        if($val != "chrDate") {
-                            $runningLine->$val += $element->$val;
-                            echo '<td class="currency_cell">'.$element->$val . '</td>';
+                    if (isset($element->$val)) {
+                        if ($val != "chrDate") {
+                            if ($isSubTotal && !$isTotal) {
+                                echo '<td class="summing_cell currency_cell">' . $element->$val . '</td>';
+                            } elseif ($isTotal) {
+                                echo '<td class="summing_cell total_summing currency_cell">' . $element->$val . '</td>';
+                            } else {
+                                echo '<td class="currency_cell">' . $element->$val . '</td>';
+                            }
                         } elseif ($val == "chrDate") {
-                            echo '<td><span class="date_cell">'.$element->$val.'</span></td>';
+                            if ($isSubTotal && !$isTotal) {
+                                echo '<td colspan="2" class="summing_cell_head">小計</td>';
+                            } elseif ($isTotal) {
+                                echo '<td colspan="2" class="summing_cell_head total_summing">総計</td>';
+                            } else {
+                                echo '<td><span class="date_cell">' . $element->$val . '</span></td>';
+                            }
+
                         }
                     } else {
-                        // Show Shop Name, Not Summed
-                        if($val == "_chrShop_ID" && !is_null(Shop::find($element->chrShop_ID)))  {
-                            echo '<td>'.$element->chrShop_ID.' . '.Shop::find($element->chrShop_ID)->chrName.'</td>';
-                        } elseif($val == "_chrShop_ID" && is_null(Shop::find($element->chrShop_ID))) {
-                            echo '<td>店舗'.$element->chrShop_ID.'存在しない</td>';
+                        if ($val=="chrDate" && $isTotal) echo '<td colspan="2" class="summing_cell_head total_summing">総計</td>';
+
+                        if ($val=="_chrShop_ID" && !$isSubTotal & !$isTotal) {
+                            if(is_null($shop) && !$missingShop_ID)
+                                echo '<td>店舗' . $element->chrShop_ID . '存在しない</td>';
+                            else
+                                echo '<td>' . $shop->chrID . ' . ' . $shop->chrName. '</td>';
                         }
-                        // Calculate Total Price With Tax, Not Summed
-                        if($val == "_PaymentWithTax") echo '<td class="currency_cell">'.($element->intAmount + $element->intTax).'</td>';
-                        // Calculate Cash, Not Summed
-                        if($val == "_Cash") echo '<td class="currency_cell">'.($element->intRevenue + $element->intRemain).'</td>';
+
+                        if ($val == "_PaymentWithTax") {
+                            if($isTotal)
+                                echo '<td class="summing_cell currency_cell total_summing">' . ($element->intAmount + $element->intTax) . '</td>';
+                            if($isSubTotal)
+                                echo '<td class="summing_cell currency_cell">' . ($element->intAmount + $element->intTax) . '</td>';
+                            if(!$isSubTotal && !$isTotal)
+                                echo '<td class="currency_cell">' . ($element->intAmount + $element->intTax) . '</td>';
+                        }
+
+                        if ($val == "_Cash") {
+                            if($isTotal)
+                                echo '<td class="summing_cell currency_cell total_summing">' . ($element->intRevenue + $element->intRemain) . '</td>';
+                            if($isSubTotal)
+                                echo '<td class="summing_cell currency_cell">' . ($element->intRevenue + $element->intRemain) . '</td>';
+                            if(!$isSubTotal && !$isTotal)
+                                echo '<td class="currency_cell">' . ($element->intRevenue + $element->intRemain) . '</td>';
+                        }
+
                     }
                 }
 
@@ -309,24 +329,6 @@ if(isset($search)){
 
             }
 
-            { // Last Summing Line, Exactly the Same as Previous
-                    foreach ($table_header as $dummy => $val) {
-                    if(isset($runningLine->$val)) {
-                        if($val != "chrDate") {
-                            echo '<td class="summing_cell currency_cell">' . $runningLine->$val . '</td>';
-                        } else {
-                            echo "<td colspan='2' class='summing_cell_head'>小計</td>";
-                        }
-                    } else {
-                        // Calculate Total Price With Tax
-                        if($val == "_PaymentWithTax") echo '<td class="summing_cell currency_cell">'.($runningLine->intAmount + $runningLine->intTax).'</td>';
-                        // Calculate Cash
-                        if($val == "_Cash") echo '<td class="summing_cell currency_cell">'.($runningLine->intRevenue + $runningLine->intRemain).'</td>';
-                    }}
-                    $runningLine = new Data_sale();
-                    $runningLine->chrDate = $element->chrDate;
-
-            } // End of Last Summing Line
             echo '</tbody></table>'
             ?>
         </div>
