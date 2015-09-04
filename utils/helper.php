@@ -5,6 +5,7 @@ require_once 'ConstantDb.php';
 
 function __autoload($class_name) {
     if(strpos($class_name, "Excel") == false ) require_once strtolower($class_name).'_class.php';
+    require_once 'ConstantDb.php';
 }
 function prefix_ifNotEmpty($prefix, $a)
 {

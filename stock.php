@@ -9,7 +9,11 @@ if (!isset($_SESSION['staff']))
     header("Location: Login.php");
 
 extract($_POST);
+extract($_GET);
 
+// Debug
+$successMessage = "サンプルデータベースに全条件テストため＝＞　日付:2015/08/21 部門:01 仕入先:東京サンエス メーカー:deuter 店舗:01";
+$errorMessage = "サンプルデーターベースに部門が足りませんので集計はあってません。";
 // 今ログインしている担当をセッションから取り出す、オブジェクトに一旦保存
 $staff = unserialize($_SESSION["staff"]);
 
@@ -17,18 +21,18 @@ $staff = unserialize($_SESSION["staff"]);
 //$contents = Data_sale::get_all_with_date_range("2015/08/01", "2015/08/31", "");
 $groups = Group::get_distinct_group_chrID();
 $shops = Shop::get_distinct_shop_chrID();;
+array_shift($shops); // remove shop 00
 $sellers = Seller::get_distinct_column('chrID');
-$makers  = Maker::get_distinct_column('chrID');
+$makers = Maker::get_distinct_column('chrID');
 
-$data_stock = Data_stock::get_all_with_limits(10);
-foreach($data_stock as $d) {
-    $barcodes[] = $d->chrStockCode;
-}
-$contents = Stocklist::buildWholeStockList($barcodes);
+$contents = Stocklist::buildWholeStockList_by_Conditions("2015/08/21", DB_SELECT_ALL_IN_COLUMN, DB_SELECT_ALL_IN_COLUMN, DB_SELECT_ALL_IN_COLUMN, DB_SELECT_ALL_IN_COLUMN, 10 * ($page_counter), 10);
+
 // 検索押された
-if (isset($search) || isset($change_page)) {
-//    $contents = Data_sale::sum_all_with_date_range_in_shop($sumColumns, $dateFrom, $dateTo, $searchIn);
-        $contents = Stocklist::buildWholeStockList_by_Conditions($dateFrom, $searchInShop, $searchInGroup, $searchInSeller, $searchInMaker, 10*($page_down-$page_up), 10);
+if (isset($search) || isset($change_page) && !isset($byCondition)) {
+    $contents = Stocklist::buildWholeStockList_by_Conditions($dateFrom, $searchInShop, $searchInGroup, $searchInSeller, $searchInMaker, 10 * ($page_counter), 10);
+} elseif (isset($byCondition)) {
+    $contents = [];
+    $contents = Stocksum::sumWholeStockList_by_Conditions($dateFrom, $searchInShop, $searchInGroup, $searchInSeller, $searchInMaker, 0, 0, $byCondition);
 }
 
 ?>
@@ -77,6 +81,24 @@ if (isset($search) || isset($change_page)) {
             var dateFormat = 'yy/mm/dd';
             $("#from").datepicker({dateFormat: dateFormat});
 
+            // Page counter
+            $('.page_up').click(function () {
+                var counter = $('.page_counter').val();
+                counter--;
+                $('.page_counter').val(counter);
+                $('.searchForm').submit();
+            });
+            $('.page_down').click(function () {
+                var counter = $('.page_counter').val();
+                counter++;
+                $('.page_counter').val(counter);
+                $('.searchForm').submit();
+            });
+            $('.page_reset').click(function () {
+                var counter = 0;
+                $('.page_counter').val(counter);
+                $('.searchForm').submit();
+            })
 
         });
     </script>
@@ -109,26 +131,26 @@ if (isset($search) || isset($change_page)) {
             text-align: center !important;
         }
 
-        .summing_cell_head {
-            text-align: center
+        tbody tr:last-child {
+            background-color: #9acfea !important;
         }
 
-        .summing_cell_head, .summing_cell {
-            background-color: #9acfea;
-            display: <? if($_POST["searchIn"] && count($_POST["searchIn"])==1 && ($searchInShops!= "00")) echo 'none'; ?>
+        <?
+//        Hide cell in Summing Line
+        if(!isset($byCondition)) {
+        for($i=0;$i<9;$i++) {
+        $css = <<<CSS
+        tbody tr:last-child td:nth-child($i) {
+            border-right:0;
         }
+CSS;
 
-        .total_summing {
-            display:table-cell !important;
-        }
 
-        .currency_cell {
-            text-align: right
+        echo $css;
         }
+        };
 
-        .date_cell {
-            text-align: center
-        }
+        ?>
     </style>
 </head>
 <body>
@@ -156,8 +178,8 @@ if (isset($search) || isset($change_page)) {
                         <input
                             id="from"
                             style="width: 293px; margin: 0 0 0 18px;" type="text" size="10"
-                            class="validate[required,maxSize[20]] text-input"
                             data-prompt-position="topLeft:140" name="dateFrom"
+                            placeholder="2015/08/21"
                             value="<?php
                             echo ifNotEmpty($dateFrom, "");
                             ?>"/>
@@ -166,6 +188,7 @@ if (isset($search) || isset($change_page)) {
                             style="width:300px;"
                             tabindex="3"
                             name="searchInShop">
+                            <option value="<? echo DB_SELECT_ALL_IN_COLUMN; ?>">全店舗</option>
                             <? foreach ($shops as $s) : ?>
                                 <option
                                     value="<? echo $s[0] ?>"
@@ -181,6 +204,7 @@ if (isset($search) || isset($change_page)) {
                             style="width:300px;"
                             tabindex="3"
                             name="searchInGroup">
+                            <option value="<? echo DB_SELECT_ALL_IN_COLUMN; ?>">全部門</option>
                             <? foreach ($groups as $g) : ?>
                                 <option
                                     value="<? echo $g[0] ?>"
@@ -193,6 +217,7 @@ if (isset($search) || isset($change_page)) {
                             style="width:300px;"
                             tabindex="3"
                             name="searchInSeller">
+                            <option value="<? echo DB_SELECT_ALL_IN_COLUMN; ?>">全仕入先</option>
                             <? foreach ($sellers as $seller) : ?>
                                 <option
                                     value="<? echo $seller ?>"
@@ -208,6 +233,7 @@ if (isset($search) || isset($change_page)) {
                             style="width:300px;"
                             tabindex="3"
                             name="searchInMaker">
+                            <option value="<? echo DB_SELECT_ALL_IN_COLUMN; ?>">全メーカー</option>
                             <? foreach ($makers as $m) : ?>
                                 <option
                                     value="<? echo $m ?>"
@@ -220,9 +246,10 @@ if (isset($search) || isset($change_page)) {
                             style="width:300px;"
                             tabindex="3"
                             name="byCondition">
-                            <option value="byGroup">部門別</option>
-                            <option value="bySeller">仕入先別</option>
-                            <option value="byMaker">メーカー別</option>
+                            <option value="byGroup" <? if ($byCondiontion == "byGroup") echo 'selected'; ?>>部門別</option>
+                            <option value="bySeller" <? if ($byCondition == "bySeller") echo 'selected'; ?>>仕入先別
+                            </option>
+                            <option value="byMaker" <? if ($byCondition == "byMaker") echo 'selected'; ?>>メーカー別</option>
                         </select>
                     </p>
 
@@ -233,6 +260,10 @@ if (isset($search) || isset($change_page)) {
                             tabindex="7"
                             class="center_button hvr-fade" type="submit" name="search"
                             size="10" value="検索"/>
+                        <input
+                            tabindex="7"
+                            class="center_button hvr-fade" type="submit" name="sum"
+                            size="10" value="集計"/>
                         <a
                             tabindex="8"
                             class="center_button hvr-fade" href="./stock.php"
@@ -251,73 +282,106 @@ if (isset($search) || isset($change_page)) {
 
                 </form>
             </div>
-            <form action=""></form>
         </div>
         <!-- ********************* マスタの作成 終了　**********************	-->
 
         <!-- ********************* リストの作成 開始　**********************	-->
+        <!-- ********************* Page Counter : Start　**********************	-->
         <p style="float: left; text-align: center; width: 300px;" id="buttonlist">
-            <div style=" height: 100px; margin: 0px 0 0 0; text-align: center; vertical-align: middle;">
-            <form method="post">
-                <input
-                            tabindex="7"
-                            class="center_button hvr-fade" type="submit" name="change_page"
-                            style="width:200px;"
-                            size="10" value="前のページ"/>
-                        <input type="text" name="page_up" hidden="true" value="<? echo $_POST["page_up"] + 1; ?>"/>
-                        <input type="text" name="page_down" hidden="true" value="<? echo $_POST["page_down"] ; ?>"/>
-             </form>
-            <form method="post">
-                        <input
-                            tabindex="7"
-                            class="center_button hvr-fade" type="submit" name="change_page"
-                            style="width:200px;"
-                            size="10" value="次のページ"/>
-                        <input type="text" name="page_up" hidden="true" value="<? echo $_POST["page_up"] ; ?>"/>
-                        <input type="text" name="page_down" hidden="true" value="<? echo $_POST["page_down"] + 1; ?>"/>
-             </form>
-            </div>
+
+        <div style=" height: 60px; margin: 0; text-align: center; vertical-align: middle;">
+            <form
+                <? if ($sum) echo 'hidden'; ?>
+                style="margin: 0 auto; margin-bottom:0px; width: 950px; height: 250px;"
+                method="post">
+                <p class="list" style="height:50px; float:left;">
+                    <label class="list" style="padding-top:3px">現在ページ <? echo $page_counter; ?></label>
+                    <input
+                        tabindex="7"
+                        class="center_button hvr-fade page_reset" type="submit"
+                        style="width:100px;margin-top:0;margin-bottom:0"
+                        size="10" value="最初へ"/>
+                    <input
+                        tabindex="7"
+                        class="center_button hvr-fade page_up" type="submit"
+                        style="width:100px;margin-top:0;margin-bottom:0"
+                        size="10" value="前のページ"/>
+                    <input
+                        tabindex="7"
+                        class="center_button hvr-fade page_down" type="submit"
+                        style="width:100px;margin-top:0;margin-bottom:0"
+                        size="10" value="次のページ"/>
+                    <input type="text" class="page_counter" name="page_counter" hidden="true"
+                           value="<? echo $_POST["page_counter"]; ?>"/>
+                </p>
+            </form>
+        </div>
         </p>
+        <!-- ********************* Page Counter : End　**********************	-->
 
-        <div id="user_list" style="overflow:auto !important;width:1000px; height:600px;">
+        <div id="user_list" style="overflow:auto !important; margin-top:5px;width:1000px; height:600px;">
 
-
-            <form method="post" id="list" action="" style="overflow: auto;">
+            <form method="post" id="list" action="" style="overflow: auto;margin-top:0;">
 
                 <?
-                 $header = [
-                     "コード"          => 50,
-                     "品番"            => 50,
-                     "品名"            => 280,
-                     "部門"            => 150,
-                     "仕入先"          => 150,
-                     "メーカー"        => 150,
-                     "カラー"          => 150,
-                     "サイズ"          => 150,
-                     "原価"            => 150,
-                     "売価"            => 150,
-                     "在庫数"          => 150,
-                     "原価金額"        => 150,
-                     "売価金額"        => 150,
-                ];
+                if (!$sum) {
+                    $header = ["コード" => 50,
+                        "品番" => 50,
+                        "品名" => 280,
+                        "部門" => 150,
+                        "仕入先" => 150,
+                        "メーカー" => 150,
+                        "カラー" => 150,
+                        "サイズ" => 150,
+                        "原価" => 150,
+                        "売価" => 150,
+                        "在庫数" => 150,
+                        "原価金額" => 150,
+                        "売価金額" => 150,];
 
-                $prop = [
-                    "chrID"         =>'center'            ,
-                    "chrCode"       =>'center'            ,
-                    "chrName"       =>'center'            ,
-                    "chrGroup"      =>'center'            ,
-                    "chrSeller"     =>'center'            ,
-                    "chrMaker"      =>'center'            ,
-                    "chrColor"      =>'center'            ,
-                    "chrSize"       =>'center'            ,
-                    "intCost"       =>'center'            ,
-                    "intPrice"      =>'center'            ,
-                    "intStockCount" =>'center'            ,
-                    "intTotalCost"  =>'center'            ,
-                    "intTotalPrice" =>'center'
+                    $prop = ["chrID" => 'center',
+                        "chrCode" => 'center',
+                        "chrName" => 'center',
+                        "chrGroup" => 'center',
+                        "chrSeller" => 'center',
+                        "chrMaker" => 'center',
+                        "chrColor" => 'center',
+                        "chrSize" => 'center',
+                        "intCost" => 'center',
+                        "intPrice" => 'center',
+                        "intStockCount" => 'center',
+                        "intTotalCost" => 'center',
+                        "intTotalPrice" => 'center'];
+                    $table_length = "1500px";
 
-                ];
-                get_list_without_buttons($header, $contents, "chrCode", $prop, "1500px") ;
+                } else {
+                    $header = ["コード" => 50];
+                    $prop = ["chrID" => 'center',];
+                    $table_length = "1000px";
+                    switch ((string)$byCondition) {
+                        case "byGroup" :
+                            $header["部門"] = 450;
+                            $prop["chrGroup"] = 'center';
+                            break;
+                        case "bySeller" :
+                            $header["仕入先"] = 450;
+                            $prop["chrSeller"] = 'center';
+                            break;
+                        case "byMaker" :
+                            $header["メーカー"] = 450;
+                            $prop["chrMaker"] = 'center';
+                            break;
+                    }
+                    $header += ["在庫数" => 100,
+                        "原価金額" => 150,
+                        "売価金額" => 150,
+                        "構成比" => 150];
+                    $prop += ["intStockCount" => 'center',
+                        "intTotalCost" => 'center',
+                        "intTotalPrice" => 'center',
+                        "intCostToTotalCost" => 'center'];
+                }
+                get_list_without_buttons($header, $contents, "chrCode", $prop, $table_length);
 
                 ?>
                 <input type="submit" name="target" style="display: none"/>

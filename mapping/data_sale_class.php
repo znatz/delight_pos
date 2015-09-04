@@ -259,11 +259,11 @@ SQL;
 
         for( $y = 0; $y <= $yearDiff; $y++) {
             $fromYear = $fromYear + $y;
-            for ( $m = 0; $m < $monDiff; $m++) {
+            for ( $m = 0; $m <= $monDiff; $m++) {
                 $from = self::findMonth($fromYear, ($fromMonth + $m));
                 $to = self::findMonth($fromYear, ($fromMonth + $m + 1));
                 $queryPart2_parts = <<<SQL
-                          WHEN chrDate Between '$from/01' AND '$from/31' THEN '$from'
+                          WHEN chrDate Between '$from/01' AND '$to/00' THEN '$from'
 SQL;
                 $queryPart2 .= $queryPart2_parts;
             }
